@@ -11,6 +11,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+
+  <!-- مهم: تحميل البيانات أولاً ثم التطبيق -->
+  <script src="data.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -26,7 +29,7 @@
       <a href="#study">الدراسة</a>
       <a href="#faith">الإيمان</a>
       <a href="#health">الصحة</a>
-      <a href="#commute">المواصلات</a>
+      <a href="#commute">أكاديمية المواصلات</a>
       <a href="#reports">التقارير</a>
       <a href="#journey-log">سجل رحلتي</a>
     </nav>
@@ -38,9 +41,16 @@
         <span class="eyebrow">خطوة صغيرة كل يوم</span>
         <h1>أهلاً بيك في رحلتك يا فاروق <span>✦</span></h1>
         <p>ما مطلوب منك تكون مثالياً؛ المطلوب ترجع للمسار كلما اتلخبطت.</p>
-        <div class="today-line"><span id="currentDate"></span><span class="live-dot"></span><span>رحلتك مستمرة</span></div>
+        <div class="today-line">
+          <span id="currentDate"></span>
+          <span class="live-dot"></span>
+          <span>رحلتك مستمرة</span>
+        </div>
       </div>
-      <div class="hero-quote"><span>01</span><p>أنا لا أنافس أحداً، أنا أبني نسخة أفضل من نفسي.</p></div>
+      <div class="hero-quote">
+        <span>01</span>
+        <p>أنا لا أنافس أحداً، أنا أبني نسخة أفضل من نفسي.</p>
+      </div>
     </section>
 
     <section class="stats-grid" aria-label="ملخص التقدم">
@@ -51,7 +61,10 @@
     </section>
 
     <section class="section" id="habits">
-      <div class="section-heading"><div><span class="eyebrow">الأساس اليومي</span><h2>متابعة العادات</h2><p>علّم على العادة بعد إنجازها، وسيُحفظ تقدمك تلقائياً.</p></div><span class="section-number">01</span></div>
+      <div class="section-heading">
+        <div><span class="eyebrow">الأساس اليومي</span><h2>متابعة العادات</h2><p>علّم على العادة بعد إنجازها، وسيُحفظ تقدمك تلقائياً.</p></div>
+        <span class="section-number">01</span>
+      </div>
       <div class="habit-grid panel" id="habitList">
         <label class="habit-item"><input type="checkbox" data-habit="prayer"><span class="habit-check"></span><span class="habit-text"><b>المحافظة على الصلاة</b><small>أحافظ على صلاتي قدر استطاعتي</small></span></label>
         <label class="habit-item"><input type="checkbox" data-habit="study"><span class="habit-check"></span><span class="habit-text"><b>المذاكرة والتركيز</b><small>خطوة دراسية واحدة على الأقل</small></span></label>
@@ -63,11 +76,18 @@
     </section>
 
     <section class="section" id="sleep">
-      <div class="section-heading"><div><span class="eyebrow">إيقاع ثابت</span><h2>النوم والساعة البيولوجية</h2><p>هدفنا تثبيت الروتين بدون التضحية بكفاية النوم.</p></div><span class="section-number">02</span></div>
+      <div class="section-heading">
+        <div><span class="eyebrow">إيقاع ثابت</span><h2>النوم والساعة البيولوجية</h2><p>هدفنا تثبيت الروتين بدون التضحية بكفاية النوم.</p></div>
+        <span class="section-number">02</span>
+      </div>
       <div class="two-column">
         <article class="panel info-card">
           <div class="card-top"><span class="card-icon">🌅</span><span class="tag">الهدف اليومي</span></div>
-          <div class="sleep-targets"><div><strong>04:00</strong><small>الاستيقاظ</small></div><div><strong>20:30</strong><small>الاستعداد للنوم</small></div><div><strong>21:00</strong><small>موعد النوم</small></div></div>
+          <div class="sleep-targets">
+            <div><strong>04:00</strong><small>الاستيقاظ</small></div>
+            <div><strong>20:30</strong><small>الاستعداد للنوم</small></div>
+            <div><strong>21:00</strong><small>موعد النوم</small></div>
+          </div>
           <p class="muted small">من 9 مساءً إلى 4 فجراً = 7 ساعات. لو جسمك احتاج نوماً أكثر، قدّم موعد النوم.</p>
         </article>
         <article class="panel form-card">
@@ -83,28 +103,34 @@
     </section>
 
     <section class="section" id="study">
-      <div class="section-heading"><div><span class="eyebrow">تقدم أكاديمي</span><h2>الدراسة والجامعة</h2><p>أضف مهمة لكل مادة، وحدد موعدها، وتابع إنجازها.</p></div><span class="section-number">03</span></div>
+      <div class="section-heading">
+        <div><span class="eyebrow">تقدم أكاديمي</span><h2>الدراسة والجامعة</h2><p>أضف مهمة لكل مادة، وحدد موعدها، وتابع إنجازها.</p></div>
+        <span class="section-number">03</span>
+      </div>
       <div class="panel study-panel">
         <div class="study-toolbar">
-          <label class="field-grow">المادة
-            <select id="subjectSelect"></select>
-          </label>
-          <label class="field-grow">المهمة
-            <input id="taskTitle" type="text" placeholder="مثلاً: مراجعة الفصل الأول" maxlength="100">
-          </label>
-          <label>الموعد
-            <input id="taskDue" type="date">
-          </label>
+          <label class="field-grow">المادة<select id="subjectSelect"></select></label>
+          <label class="field-grow">المهمة<input id="taskTitle" type="text" placeholder="مثلاً: مراجعة الفصل الأول" maxlength="100"></label>
+          <label>الموعد<input id="taskDue" type="date"></label>
           <button class="primary-button align-end" id="addTaskButton" type="button">+ إضافة مهمة</button>
         </div>
-        <div class="study-summary"><span>المهام المكتملة: <b id="completedTaskCount">0</b></span><span>المهام المفتوحة: <b id="openTaskCount">0</b></span></div>
+        <div class="study-summary">
+          <span>المهام المكتملة: <b id="completedTaskCount">0</b></span>
+          <span>المهام المفتوحة: <b id="openTaskCount">0</b></span>
+        </div>
         <div id="taskList" class="task-list"><p class="empty-state">ما عندك مهام دراسية حالياً. أضف أول مهمة.</p></div>
       </div>
-      <div class="schedule-note panel"><span>🎓</span><div><b>أيام الجامعة</b><p>الثلاثاء والأربعاء والخميس — الاستيقاظ 5 صباحاً حالياً، والعودة غالباً قرب المغرب. هدفنا تثبيت الاستيقاظ 4 صباحاً والنوم مبكراً.</p></div></div>
+      <div class="schedule-note panel">
+        <span>🎓</span>
+        <div><b>أيام الجامعة</b><p>الثلاثاء والأربعاء والخميس — هدفنا تثبيت الاستيقاظ 4 صباحاً والنوم مبكراً.</p></div>
+      </div>
     </section>
 
     <section class="section" id="faith">
-      <div class="section-heading"><div><span class="eyebrow">طمأنينة واتزان</span><h2>الجانب الإيماني</h2><p>متابعة بسيطة للعبادات اليومية دون ضغط أو جلد للذات.</p></div><span class="section-number">04</span></div>
+      <div class="section-heading">
+        <div><span class="eyebrow">طمأنينة واتزان</span><h2>الجانب الإيماني</h2><p>متابعة بسيطة للعبادات اليومية دون ضغط أو جلد للذات.</p></div>
+        <span class="section-number">04</span>
+      </div>
       <div class="two-column">
         <article class="panel form-card">
           <h3>متابعة الصلوات</h3>
@@ -129,30 +155,119 @@
     </section>
 
     <section class="section" id="health">
-      <div class="section-heading"><div><span class="eyebrow">جسمك أمانة</span><h2>الصحة واللياقة</h2><p>خطوات صغيرة قابلة للاستمرار.</p></div><span class="section-number">05</span></div>
+      <div class="section-heading">
+        <div><span class="eyebrow">جسمك أمانة</span><h2>الصحة واللياقة</h2><p>خطوات صغيرة قابلة للاستمرار.</p></div>
+        <span class="section-number">05</span>
+      </div>
       <div class="health-grid">
         <article class="panel health-card">
           <span class="card-icon">💧</span><h3>شرب الماء</h3><p class="muted small">سجّل أكواب الماء خلال اليوم.</p>
-          <div class="counter"><button type="button" id="waterMinus" aria-label="تقليل كوب">−</button><strong id="waterCount">0</strong><button type="button" id="waterPlus" aria-label="إضافة كوب">+</button></div><small class="muted">كوب اليوم</small>
+          <div class="counter">
+            <button type="button" id="waterMinus" aria-label="تقليل كوب">−</button>
+            <strong id="waterCount">0</strong>
+            <button type="button" id="waterPlus" aria-label="إضافة كوب">+</button>
+          </div>
+          <small class="muted">كوب اليوم</small>
         </article>
         <article class="panel health-card">
           <span class="card-icon">🏃</span><h3>الحركة والتمرين</h3><p class="muted small">سجّل دقائق الحركة التي أنجزتها.</p>
-          <div class="counter"><button type="button" id="exerciseMinus" aria-label="تقليل الدقائق">−</button><strong id="exerciseMinutes">0</strong><button type="button" id="exercisePlus" aria-label="إضافة دقائق">+</button></div><small class="muted">دقيقة نشاط</small>
+          <div class="counter">
+            <button type="button" id="exerciseMinus" aria-label="تقليل الدقائق">−</button>
+            <strong id="exerciseMinutes">0</strong>
+            <button type="button" id="exercisePlus" aria-label="إضافة دقائق">+</button>
+          </div>
+          <small class="muted">دقيقة نشاط</small>
         </article>
       </div>
     </section>
 
+    <!-- أكاديمية المواصلات الجديدة -->
     <section class="section" id="commute">
-      <div class="section-heading"><div><span class="eyebrow">استثمار مرن للوقت</span><h2>خطة المواصلات</h2><p>حوالي ساعتين ذهاباً وساعتين عودة في أيام الجامعة.</p></div><span class="section-number">06</span></div>
-      <div class="two-column">
-        <article class="panel commute-card"><span class="card-icon">🚌</span><h3>الذهاب</h3><p>فيديو تعليمي واحد أو استماع لمحاضرة بسماعات.</p><label class="check-line"><input type="checkbox" data-commute="outbound"> أنجزت خطة الذهاب</label></article>
-        <article class="panel commute-card"><span class="card-icon">🎧</span><h3>العودة</h3><p>فيديو ثانٍ أو مراجعة صوتية، والراحة متاحة لو كنت مرهقاً.</p><label class="check-line"><input type="checkbox" data-commute="return"> أنجزت خطة العودة</label></article>
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">وقتك استثمار في نفسك</span>
+          <h2>أكاديمية المواصلات</h2>
+          <p>50 فيديو عربي مختار لتطوير الدين والنفس والعلم والصحة والمهارات.</p>
+        </div>
+        <span class="section-number">06</span>
       </div>
-      <p class="muted small commute-reminder">ما مطلوب تستغل الأربع ساعات كلها؛ سلامتك وراحتك أهم من أي جدول.</p>
+
+      <div class="academy-overview panel">
+        <div class="academy-intro">
+          <span class="card-icon">🎧</span>
+          <div>
+            <h3>رحلة تعلّم لمدة 25 يوماً</h3>
+            <p class="muted small">فيديو للذهاب وفيديو للعودة. استمع بسماعاتك، وخذ راحتك لو كنت مرهقاً.</p>
+          </div>
+        </div>
+        <div class="academy-progress">
+          <div class="academy-progress-label">
+            <span>تقدمك في المكتبة</span>
+            <strong id="videoProgressText">0 / 50 فيديو</strong>
+          </div>
+          <div class="progress-track"><span id="videoProgressBar"></span></div>
+        </div>
+      </div>
+
+      <div class="daily-videos-grid">
+        <article class="panel daily-video-card" id="outboundVideoCard">
+          <div class="video-card-top">
+            <span class="video-direction">🚌 فيديو الذهاب</span>
+            <span class="video-day" id="outboundDay">اليوم 1</span>
+          </div>
+          <span class="video-category" id="outboundCategory">تطوير الذات</span>
+          <h3 id="outboundTitle">جاري تجهيز فيديو اليوم...</h3>
+          <p class="muted small" id="outboundDescription"></p>
+          <a class="primary-button video-open-link" id="outboundLink" href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer">شاهد على يوتيوب ↗</a>
+          <label class="video-watched-label">
+            <input type="checkbox" id="outboundWatched">
+            <span>استمعت للفيديو</span>
+          </label>
+        </article>
+
+        <article class="panel daily-video-card" id="returnVideoCard">
+          <div class="video-card-top">
+            <span class="video-direction">🎧 فيديو العودة</span>
+            <span class="video-day" id="returnDay">اليوم 1</span>
+          </div>
+          <span class="video-category" id="returnCategory">الدين والمعرفة</span>
+          <h3 id="returnTitle">جاري تجهيز فيديو اليوم...</h3>
+          <p class="muted small" id="returnDescription"></p>
+          <a class="primary-button video-open-link" id="returnLink" href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer">شاهد على يوتيوب ↗</a>
+          <label class="video-watched-label">
+            <input type="checkbox" id="returnWatched">
+            <span>استمعت للفيديو</span>
+          </label>
+        </article>
+      </div>
+
+      <div class="panel academy-library">
+        <div class="academy-library-heading">
+          <div><h3>مكتبة الفيديوهات كاملة</h3><p class="muted small">اختَر المجال أو افتح أي فيديو من المكتبة.</p></div>
+          <label class="video-filter-label">تصفية حسب المجال
+            <select id="videoCategoryFilter">
+              <option value="all">كل المجالات</option>
+              <option value="faith">الدين والإيمان</option>
+              <option value="self">تطوير الذات</option>
+              <option value="study">الدراسة والتعلم</option>
+              <option value="mind">النفس والسلوك</option>
+              <option value="health">الصحة والعادات</option>
+            </select>
+          </label>
+        </div>
+        <div id="videoLibrary" class="video-library">
+          <p class="empty-state">جاري تحميل مكتبة الفيديوهات...</p>
+        </div>
+      </div>
+
+      <p class="muted small commute-reminder">ما مطلوب تستغل الأربع ساعات كلها؛ سلامتك وراحتك أهم من أي جدول. تقدر تسمع الفيديو في وقت لاحق لو ما قدرت أثناء المواصلات.</p>
     </section>
 
     <section class="section" id="reports">
-      <div class="section-heading"><div><span class="eyebrow">وقفة مع النفس</span><h2>مراجعة اليوم والتقارير</h2><p>اكتب بصدق، واحتفل بالتقدم حتى لو كان بسيطاً.</p></div><span class="section-number">07</span></div>
+      <div class="section-heading">
+        <div><span class="eyebrow">وقفة مع النفس</span><h2>مراجعة اليوم والتقارير</h2><p>اكتب بصدق، واحتفل بالتقدم حتى لو كان بسيطاً.</p></div>
+        <span class="section-number">07</span>
+      </div>
       <div class="two-column">
         <article class="panel form-card">
           <h3>مراجعة اليوم</h3>
@@ -167,29 +282,52 @@
         </article>
         <article class="panel form-card">
           <h3>ملخص إنجازاتك</h3>
-          <div class="report-list"><div><span>العادات المنجزة اليوم</span><b id="reportHabits">0 / 6</b></div><div><span>مهام الدراسة المكتملة</span><b id="reportTasks">0</b></div><div><span>أكواب الماء</span><b id="reportWater">0</b></div><div><span>دقائق النشاط</span><b id="reportExercise">0</b></div></div>
-          <div class="button-row"><button class="secondary-button" id="exportData" type="button">تصدير نسخة احتياطية</button><button class="secondary-button" id="importButton" type="button">استيراد نسخة</button><input id="importFile" type="file" accept="application/json" hidden></div>
+          <div class="report-list">
+            <div><span>العادات المنجزة اليوم</span><b id="reportHabits">0 / 6</b></div>
+            <div><span>مهام الدراسة المكتملة</span><b id="reportTasks">0</b></div>
+            <div><span>أكواب الماء</span><b id="reportWater">0</b></div>
+            <div><span>دقائق النشاط</span><b id="reportExercise">0</b></div>
+          </div>
+          <div class="button-row">
+            <button class="secondary-button" id="exportData" type="button">تصدير نسخة احتياطية</button>
+            <button class="secondary-button" id="importButton" type="button">استيراد نسخة</button>
+            <input id="importFile" type="file" accept="application/json" hidden>
+          </div>
         </article>
       </div>
     </section>
 
     <section class="section" id="journey-log">
-      <div class="section-heading"><div><span class="eyebrow">ذاكرة رحلتك</span><h2>سجل رحلتي — يوم بيوم</h2><p>كل تعديل تحفظه اليوم يظهر هنا تلقائياً بتاريخ اليوم.</p></div><span class="section-number">08</span></div>
+      <div class="section-heading">
+        <div><span class="eyebrow">ذاكرة رحلتك</span><h2>سجل رحلتي — يوم بيوم</h2><p>كل تعديل تحفظه اليوم يظهر هنا تلقائياً بتاريخ اليوم.</p></div>
+        <span class="section-number">08</span>
+      </div>
       <div class="panel journey-panel">
         <div class="journey-toolbar">
           <label>عرض السجل
-            <select id="logPeriod"><option value="all">كل الأيام المسجلة</option><option value="7">آخر 7 أيام</option><option value="30">آخر 30 يوماً</option></select>
+            <select id="logPeriod">
+              <option value="all">كل الأيام المسجلة</option>
+              <option value="7">آخر 7 أيام</option>
+              <option value="30">آخر 30 يوماً</option>
+            </select>
           </label>
           <span id="logDaysCount" class="log-count">0 يوم مسجل</span>
         </div>
         <div class="table-wrap">
           <table class="journey-table">
-            <thead><tr><th>التاريخ</th><th>العادات</th><th>الصلاة</th><th>الماء</th><th>الرياضة</th><th>الدراسة</th><th>الإنجاز</th><th>التفاصيل</th></tr></thead>
-            <tbody id="journeyLogBody"><tr><td colspan="8" class="empty-state">لسه ما عندك أيام مسجلة. ابدأ بتسجيل نشاطك اليوم.</td></tr></tbody>
+            <thead>
+              <tr><th>التاريخ</th><th>العادات</th><th>الصلاة</th><th>الماء</th><th>الرياضة</th><th>الدراسة</th><th>الإنجاز</th><th>التفاصيل</th></tr>
+            </thead>
+            <tbody id="journeyLogBody">
+              <tr><td colspan="8" class="empty-state">لسه ما عندك أيام مسجلة. ابدأ بتسجيل نشاطك اليوم.</td></tr>
+            </tbody>
           </table>
         </div>
         <div id="dayDetails" class="day-details" hidden>
-          <div class="day-details-head"><h3 id="detailDate">تفاصيل اليوم</h3><button id="closeDayDetails" class="secondary-button" type="button">إغلاق</button></div>
+          <div class="day-details-head">
+            <h3 id="detailDate">تفاصيل اليوم</h3>
+            <button id="closeDayDetails" class="secondary-button" type="button">إغلاق</button>
+          </div>
           <div id="dayDetailsContent" class="day-details-grid"></div>
         </div>
         <p class="muted small log-note">الحفظ تلقائي على هذا المتصفح والجهاز. نزّل نسخة احتياطية بانتظام؛ مسح بيانات المتصفح أو تغيير الجهاز قد يؤدي لفقدان السجل.</p>
@@ -202,6 +340,7 @@
       <small>بياناتك محفوظة محلياً على هذا المتصفح.</small>
     </footer>
   </main>
+
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 </html>
