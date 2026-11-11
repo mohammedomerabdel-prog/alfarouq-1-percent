@@ -2,9 +2,9 @@
 (() => {
   "use strict";
 
-  /* =========================================
-     AL-FAROUQ 1% — رحلة التغيير
-     ========================================= */
+  // ==========================================
+  // AL-FAROUQ 1% — MAIN APPLICATION
+  // ==========================================
 
   const STORAGE_KEY = "alfarouq_1_percent_data_v3";
   const LEGACY_KEYS = [
@@ -21,397 +21,17 @@
     "discipline"
   ];
 
-  const HABIT_LABELS = {
-    prayer: "الصلاة",
-    study: "الدراسة",
-    exercise: "الرياضة",
-    phone: "تقليل استخدام الهاتف",
-    sleep: "النوم المنتظم",
-    discipline: "الانضباط"
-  };
-
   const PRAYERS = ["الفجر", "الظهر", "العصر", "المغرب", "العشاء"];
 
-  let toastTimer = null;
-  let selectedDetailDate = null;
-
-  const $ = id => document.getElementById(id);
-
-  /* =========================================
-     التاريخ
-     ========================================= */
-
-  function localDateKey(date = new Date()) {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, "0");
-    const d = String(date.getDate()).padStart(2, "0");
-    return `${y}-${m}-${d}`;
-  }
-
-  const today = localDateKey();
-
-  function parseDate(key) {
-    const [year, month, day] = String(key).split("-").map(Number);
-    return new Date(year, month - 1, day);
-  }
-
-  function formatDate(key) {
-    if (!key) return "غير محدد";
-
-    return new Intl.DateTimeFormat("ar", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric"
-    }).format(parseDate(key));
-  }
-
-  function dateDifference(first, second) {
-    const a = parseDate(first);
-    const b = parseDate(second);
-    return Math.round((b - a) / 86400000);
-  }
-
-  function isValidDateKey(value) {
-    return /^\d{4}-\d{2}-\d{2}$/.test(String(value || ""));
-  }
-
-  /* =========================================
-     البيانات والحفظ
-     ========================================= */
-
-  function freshData() {
-    return {
-      version: 4,
-      startDate: today,
-      days: {},
-      tasks: [],
-      sleep: {},
-      faith: {},
-      health: {},
-      commute: {},
-      reviews: {}
-    };
-  }
-
-  function normalizeData(saved) {
-    const base = freshData();
-
-    if (!saved || typeof saved !== "object" || Array.isArray(saved)) {
-      return base;
-    }
-
-    const result = {
-      ...base,
-      ...saved,
-      days: saved.days && typeof saved.days === "object" ? saved.days : {},
-      tasks: Array.isArray(saved.tasks) ? saved.tasks : [],
-      sleep: saved.sleep && typeof saved.sleep === "object" ? saved.sleep : {},
-      faith: saved.faith && typeof saved.faith === "object" ? saved.faith : {},
-      health: saved.health && typeof saved.health === "object" ? saved.health : {},
-      commute: saved.commute && typeof saved.commute === "object" ? saved.commute : {},
-      reviews: saved.reviews && typeof saved.reviews === "object" ? saved.reviews : {}
-    };
-
-    if (!isValidDateKey(result.startDate)) {
-      result.startDate = today;
-    }
-
-    Object.keys(result.days).forEach(key => {
-      const record = result.days[key];
-
-      if (!record || typeof record !== "object" || Array.isArray(record)) {
-        result.days[key] = {};
-      }
-
-      const day = result.days[key];
-
-      if (!Array.isArray(day.habits)) day.habits = [];
-      if (!Array.isArray(day.prayers)) day.prayers = [];
-    });
-
-    result.tasks = result.tasks
-      .filter(task => task && typeof task === "object")
-      .map((task, index) => ({
-        id: task.id || `imported-${index}-${Date.now()}`,
-        title: String(task.title || "مهمة بدون عنوان"),
-        subject: String(task.subject || "بدون مادة"),
-        due: isValidDateKey(task.due) ? task.due : "",
-        done: Boolean(task.done),
-        createdAt: isValidDateKey(task.createdAt) ? task.createdAt : today,
-        completedAt: isValidDateKey(task.completedAt) ? task.completedAt : ""
-      }));
-
-    return result;
-  }
-
-  function loadData() {
-    try {
-      const current = localStorage.getItem(STORAGE_KEY);
-
-      if (current) {
-        return normalizeData(JSON.parse(current));
-      }
-
-      for (const key of LEGACY_KEYS) {
-        const oldValue = localStorage.getItem(key);
-
-        if (oldValue) {
-          const migrated = normalizeData(JSON.parse(oldValue));
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
-          return migrated;
-        }
-      }
-    } catch (error) {
-      console.error("تعذر تحميل البيانات:", error);
-    }
-
-    return freshData();
-  }
-
-  const data = loadData();
-
-  function ensureToday() {
-    let day = data.days[today];
-
-    if (!day || typeof day !== "object" || Array.isArray(day)) {
-      day = {};
-      data.days[today] = day;
-    }
-
-    if (!Array.isArray(day.habits)) day.habits = [];
-    if (!Array.isArray(day.prayers)) day.prayers = [];
-
-    if (
-      !data.health[today] ||
-      typeof data.health[today] !== "object"
-    ) {
-      data.health[today] = { water: 0, exercise: 0 };
-    }
-
-    const health = data.health[today];
-
-    health.water = Math.max(0, Number(health.water) || 0);
-    health.exercise = Math.max(0, Number(health.exercise) || 0);
-
-    if (
-      !data.commute[today] ||
-      typeof data.commute[today] !== "object"
-    ) {
-      data.commute[today] = {
-        outbound: false,
-        return: false
-      };
-    }
-  }
-
-  function save() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      return true;
-    } catch (error) {
-      console.error("تعذر حفظ البيانات:", error);
-      showToast("تعذر الحفظ. صدّر نسخة احتياطية من بياناتك.");
-      return false;
-    }
-  }
-
-  ensureToday();
-
-  /* =========================================
-     رسائل التنبيه
-     ========================================= */
-
-  function showToast(message) {
-    const toast = $("toast");
-    if (!toast) return;
-
-    toast.textContent = message;
-    toast.classList.add("show");
-
-    clearTimeout(toastTimer);
-
-    toastTimer = setTimeout(() => {
-      toast.classList.remove("show");
-    }, 2400);
-  }
-
-  function setText(id, value) {
-    const element = $(id);
-    if (element) element.textContent = value;
-  }
-
-  /* =========================================
-     التاريخ والقائمة الجانبية
-     ========================================= */
-
-  const dateElement = $("currentDate");
-
-  if (dateElement) {
-    dateElement.textContent = formatDate(today);
-  }
-
-  const menuButton = $("menuButton");
-  const navigation = $("navigation");
-
-  if (menuButton && navigation) {
-    menuButton.addEventListener("click", () => {
-      const opened = navigation.classList.toggle("open");
-      menuButton.setAttribute("aria-expanded", String(opened));
-    });
-
-    navigation.querySelectorAll("a").forEach(link => {
-      link.addEventListener("click", () => {
-        navigation.classList.remove("open");
-        menuButton.setAttribute("aria-expanded", "false");
-      });
-    });
-  }
-
-  /* =========================================
-     سجل اليوم
-     ========================================= */
-
-  function getTodayRecord() {
-    ensureToday();
-    return data.days[today];
-  }
-
-  function getDayRecord(key) {
-    const record = data.days[key];
-
-    if (!record || typeof record !== "object" || Array.isArray(record)) {
-      return {
-        habits: [],
-        prayers: []
-      };
-    }
-
-    return {
-      ...record,
-      habits: Array.isArray(record.habits) ? record.habits : [],
-      prayers: Array.isArray(record.prayers) ? record.prayers : []
-    };
-  }
-
-  function hasDayActivity(key) {
-    const day = getDayRecord(key);
-    const health = data.health[key] || {};
-    const commute = data.commute[key] || {};
-    const review = data.reviews[key] || {};
-
-    return (
-      day.habits.length > 0 ||
-      day.prayers.length > 0 ||
-      Number(health.water) > 0 ||
-      Number(health.exercise) > 0 ||
-      Boolean(data.sleep[key]) ||
-      Boolean(data.faith[key]) ||
-      Boolean(commute.outbound) ||
-      Boolean(commute.return) ||
-      Boolean(review.done) ||
-      Boolean(review.next) ||
-      data.tasks.some(task => task.createdAt === key || task.completedAt === key)
-    );
-  }
-
-  /* =========================================
-     العادات اليومية
-     ========================================= */
-
-  document.querySelectorAll("[data-habit]").forEach(input => {
-    const key = input.dataset.habit;
-
-    if (!HABITS.includes(key)) return;
-
-    input.checked = getTodayRecord().habits.includes(key);
-
-    input.addEventListener("change", () => {
-      const day = getTodayRecord();
-
-      if (input.checked && !day.habits.includes(key)) {
-        day.habits.push(key);
-      }
-
-      if (!input.checked) {
-        day.habits = day.habits.filter(item => item !== key);
-      }
-
-      save();
-      updateDashboard();
-      renderJourneyLog();
-    });
-  });
-
-  /* =========================================
-     النوم
-     ========================================= */
-
-  const sleepStart = $("sleepStart");
-  const sleepEnd = $("sleepEnd");
-  const sleepForm = $("sleepForm");
-  const sleepResult = $("sleepResult");
-
-  function sleepDuration(start, end) {
-    if (!start || !end) return 0;
-
-    const [sh, sm] = start.split(":").map(Number);
-    const [eh, em] = end.split(":").map(Number);
-
-    let minutes = (eh * 60 + em) - (sh * 60 + sm);
-
-    if (minutes <= 0) minutes += 1440;
-
-    return minutes;
-  }
-
-  function renderSleepResult() {
-    const record = data.sleep[today];
-
-    if (!record || !sleepResult) return;
-
-    const minutes = sleepDuration(record.start, record.end);
-    const hours = Math.floor(minutes / 60);
-    const remaining = minutes % 60;
-
-    sleepResult.textContent =
-      `سجلت ${hours} ساعة و${remaining} دقيقة من النوم.`;
-  }
-
-  if (data.sleep[today]) {
-    if (sleepStart) sleepStart.value = data.sleep[today].start || "21:00";
-    if (sleepEnd) sleepEnd.value = data.sleep[today].end || "04:00";
-    renderSleepResult();
-  }
-
-  if (sleepForm) {
-    sleepForm.addEventListener("submit", event => {
-      event.preventDefault();
-
-      if (!sleepStart || !sleepEnd || !sleepStart.value || !sleepEnd.value) {
-        showToast("أدخل وقت النوم والاستيقاظ أولاً");
-        return;
-      }
-
-      data.sleep[today] = {
-        start: sleepStart.value,
-        end: sleepEnd.value
-      };
-
-      save();
-      renderSleepResult();
-      updateDashboard();
-      renderJourneyLog();
-
-      showToast("تم حفظ سجل النوم");
-    });
-  }
-
-  /* =========================================
-     المواد والمهام الدراسية
-     ========================================= */
-
-  const DEFAULT_SUBJECTS = [
+  const CATEGORY_NAMES = {
+    faith: "الدين والإيمان",
+    self: "تطوير الذات",
+    study: "الدراسة والتعلم",
+    mind: "النفس والسلوك",
+    health: "الصحة والعادات"
+  };
+
+  const FALLBACK_SUBJECTS = [
     "السلوك التنظيمي",
     "الإدارة باللغة الإنجليزية",
     "المحاسبة المالية",
@@ -422,66 +42,542 @@
     "الحاسوب"
   ];
 
-  const subjects =
-    window.APP_DATA &&
-    Array.isArray(window.APP_DATA.subjects) &&
-    window.APP_DATA.subjects.length
-      ? window.APP_DATA.subjects
-      : DEFAULT_SUBJECTS;
+  const APP_DATA = window.APP_DATA || {};
 
-  const subjectSelect = $("subjectSelect");
+  const SUBJECTS = Array.isArray(APP_DATA.subjects) &&
+    APP_DATA.subjects.length
+    ? APP_DATA.subjects
+    : FALLBACK_SUBJECTS;
 
-  if (subjectSelect) {
-    subjectSelect.innerHTML = "";
+  const VIDEOS = Array.isArray(APP_DATA.videos)
+    ? APP_DATA.videos
+    : [];
 
-    subjects.forEach(subject => {
+  const $ = id => document.getElementById(id);
+
+  let toastTimer = null;
+
+  // ==========================================
+  // DATE HELPERS
+  // ==========================================
+
+  function localDateKey(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  }
+
+  function parseDate(dateKey) {
+    return new Date(`${dateKey}T00:00:00`);
+  }
+
+  function daysBetween(firstDate, secondDate) {
+    const first = parseDate(firstDate);
+    const second = parseDate(secondDate);
+
+    return Math.floor(
+      (second.getTime() - first.getTime()) / 86400000
+    );
+  }
+
+  const today = localDateKey();
+
+  // ==========================================
+  // DATA MANAGEMENT
+  // ==========================================
+
+  function freshData() {
+    return {
+      startDate: today,
+      days: {},
+      tasks: [],
+      sleep: {},
+      faith: {},
+      health: {},
+      commute: {},
+      reviews: {},
+      dailyLogs: {},
+      videoWatched: {}
+    };
+  }
+
+  function isObject(value) {
+    return value !== null &&
+      typeof value === "object" &&
+      !Array.isArray(value);
+  }
+
+  function safeObject(value) {
+    return isObject(value) ? value : {};
+  }
+
+  function normalizeData(saved) {
+    const defaults = freshData();
+    const source = safeObject(saved);
+
+    const normalized = {
+      ...defaults,
+      ...source,
+
+      days: safeObject(source.days),
+      tasks: Array.isArray(source.tasks)
+        ? source.tasks
+        : [],
+
+      sleep: safeObject(source.sleep),
+      faith: safeObject(source.faith),
+      health: safeObject(source.health),
+      commute: safeObject(source.commute),
+      reviews: safeObject(source.reviews),
+      dailyLogs: safeObject(source.dailyLogs),
+
+      videoWatched: safeObject(source.videoWatched)
+    };
+
+    if (
+      typeof normalized.startDate !== "string" ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(normalized.startDate)
+    ) {
+      normalized.startDate = today;
+    }
+
+    normalized.tasks = normalized.tasks
+      .filter(task => isObject(task))
+      .map((task, index) => ({
+        ...task,
+        id: task.id || `task-${index}-${Date.now()}`,
+        title: String(task.title || "مهمة بدون عنوان"),
+        subject: String(task.subject || "بدون مادة"),
+        due: String(task.due || ""),
+        done: Boolean(task.done),
+        createdAt: task.createdAt || today
+      }));
+
+    Object.keys(normalized.health).forEach(date => {
+      const health = safeObject(normalized.health[date]);
+
+      normalized.health[date] = {
+        water: Math.max(0, Number(health.water) || 0),
+        exercise: Math.max(0, Number(health.exercise) || 0)
+      };
+    });
+
+    return normalized;
+  }
+
+  function loadData() {
+    try {
+      let saved = JSON.parse(
+        localStorage.getItem(STORAGE_KEY) || "null"
+      );
+
+      if (!isObject(saved)) {
+        for (const key of LEGACY_KEYS) {
+          try {
+            const legacy = JSON.parse(
+              localStorage.getItem(key) || "null"
+            );
+
+            if (isObject(legacy)) {
+              saved = legacy;
+              break;
+            }
+          } catch (error) {
+            console.warn("تعذر قراءة نسخة قديمة:", error);
+          }
+        }
+      }
+
+      if (!isObject(saved)) {
+        return freshData();
+      }
+
+      return normalizeData(saved);
+
+    } catch (error) {
+      console.warn("تعذر تحميل البيانات:", error);
+      return freshData();
+    }
+  }
+
+  const data = loadData();
+
+  function ensureToday() {
+    if (!isObject(data.days[today])) {
+      data.days[today] = {
+        habits: [],
+        prayers: []
+      };
+    }
+
+    if (!Array.isArray(data.days[today].habits)) {
+      data.days[today].habits = [];
+    }
+
+    if (!Array.isArray(data.days[today].prayers)) {
+      data.days[today].prayers = [];
+    }
+
+    if (!isObject(data.health[today])) {
+      data.health[today] = {
+        water: 0,
+        exercise: 0
+      };
+    }
+
+    data.health[today].water = Math.max(
+      0,
+      Number(data.health[today].water) || 0
+    );
+
+    data.health[today].exercise = Math.max(
+      0,
+      Number(data.health[today].exercise) || 0
+    );
+
+    if (!isObject(data.commute[today])) {
+      data.commute[today] = {
+        outbound: false,
+        return: false
+      };
+    }
+  }
+
+  ensureToday();
+
+  // ==========================================
+  // NOTIFICATIONS
+  // ==========================================
+
+  function showToast(message) {
+    const toast = $("toast");
+
+    if (!toast) return;
+
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    clearTimeout(toastTimer);
+
+    toastTimer = setTimeout(() => {
+      toast.classList.remove("show");
+    }, 2300);
+  }
+
+  // ==========================================
+  // DAILY SNAPSHOTS AND SAVING
+  // ==========================================
+
+  function buildDaySnapshot(dateKey) {
+    const day = data.days[dateKey] || {};
+    const health = data.health[dateKey] || {};
+    const commute = data.commute[dateKey] || {};
+    const sleep = data.sleep[dateKey] || {};
+    const review = data.reviews[dateKey] || {};
+
+    const dayTasks = data.tasks.filter(task =>
+      task.createdAt === dateKey ||
+      task.completedAt === dateKey
+    );
+
+    const watchedVideos = Object.keys(data.videoWatched)
+      .filter(id => data.videoWatched[id]);
+
+    return {
+      date: dateKey,
+
+      habits: Array.isArray(day.habits)
+        ? [...day.habits]
+        : [],
+
+      prayers: Array.isArray(day.prayers)
+        ? [...day.prayers]
+        : [],
+
+      water: Number(health.water) || 0,
+      exercise: Number(health.exercise) || 0,
+
+      sleep: {
+        start: sleep.start || "",
+        end: sleep.end || ""
+      },
+
+      commute: {
+        outbound: Boolean(commute.outbound),
+        return: Boolean(commute.return)
+      },
+
+      videosWatched: watchedVideos,
+
+      faith: data.faith[dateKey] || "",
+
+      review: review.done || "",
+      tomorrow: review.next || "",
+
+      tasksCreated: dayTasks
+        .filter(task => task.createdAt === dateKey)
+        .map(task => ({
+          title: task.title,
+          subject: task.subject,
+          done: Boolean(task.done)
+        })),
+
+      tasksCompleted: dayTasks
+        .filter(task => task.completedAt === dateKey)
+        .map(task => ({
+          title: task.title,
+          subject: task.subject
+        }))
+    };
+  }
+
+  function save() {
+    try {
+      data.dailyLogs[today] = buildDaySnapshot(today);
+
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(data)
+      );
+
+      renderJourneyLog();
+
+    } catch (error) {
+      console.error("خطأ أثناء الحفظ:", error);
+      showToast("تعذر الحفظ. تحقق من مساحة المتصفح.");
+    }
+  }
+
+  // ==========================================
+  // HEADER AND NAVIGATION
+  // ==========================================
+
+  function initializeHeader() {
+    const dateElement = $("currentDate");
+
+    if (dateElement) {
+      dateElement.textContent = new Intl.DateTimeFormat(
+        "ar",
+        {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric"
+        }
+      ).format(new Date());
+    }
+
+    const menuButton = $("menuButton");
+    const navigation = $("navigation");
+
+    if (!menuButton || !navigation) return;
+
+    menuButton.addEventListener("click", () => {
+      const opened = navigation.classList.toggle("open");
+
+      menuButton.setAttribute(
+        "aria-expanded",
+        String(opened)
+      );
+    });
+
+    navigation.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", () => {
+        navigation.classList.remove("open");
+
+        menuButton.setAttribute(
+          "aria-expanded",
+          "false"
+        );
+      });
+    });
+  }
+
+  // ==========================================
+  // HABITS
+  // ==========================================
+
+  function initializeHabits() {
+    document.querySelectorAll("[data-habit]").forEach(input => {
+      const key = input.dataset.habit;
+
+      input.checked = data.days[today].habits.includes(key);
+
+      input.addEventListener("change", () => {
+        const habits = data.days[today].habits;
+
+        if (input.checked && !habits.includes(key)) {
+          habits.push(key);
+        }
+
+        if (!input.checked) {
+          data.days[today].habits = habits.filter(
+            item => item !== key
+          );
+        }
+
+        save();
+        updateDashboard();
+      });
+    });
+  }
+
+  // ==========================================
+  // SLEEP
+  // ==========================================
+
+  function sleepDuration(start, end) {
+    if (!start || !end) return 0;
+
+    const [startHour, startMinute] = start
+      .split(":")
+      .map(Number);
+
+    const [endHour, endMinute] = end
+      .split(":")
+      .map(Number);
+
+    let minutes =
+      (endHour * 60 + endMinute) -
+      (startHour * 60 + startMinute);
+
+    if (minutes <= 0) {
+      minutes += 1440;
+    }
+
+    return minutes;
+  }
+
+  function renderSleepResult() {
+    const result = $("sleepResult");
+    const record = data.sleep[today];
+
+    if (!result) return;
+
+    if (!record) {
+      result.textContent = "لم تسجل نوم اليوم بعد.";
+      return;
+    }
+
+    const minutes = sleepDuration(
+      record.start,
+      record.end
+    );
+
+    const hours = Math.floor(minutes / 60);
+    const remainder = minutes % 60;
+
+    result.textContent =
+      `سجلت ${hours} ساعة و${remainder} دقيقة من النوم.`;
+  }
+
+  function initializeSleep() {
+    const start = $("sleepStart");
+    const end = $("sleepEnd");
+    const form = $("sleepForm");
+
+    if (!start || !end || !form) return;
+
+    if (data.sleep[today]) {
+      start.value = data.sleep[today].start || "21:00";
+      end.value = data.sleep[today].end || "04:00";
+    }
+
+    renderSleepResult();
+
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+
+      if (!start.value || !end.value) {
+        showToast("حدد وقت النوم والاستيقاظ أولاً.");
+        return;
+      }
+
+      data.sleep[today] = {
+        start: start.value,
+        end: end.value
+      };
+
+      save();
+      renderSleepResult();
+
+      showToast("تم حفظ سجل النوم");
+    });
+  }
+
+  // ==========================================
+  // SUBJECTS AND TASKS
+  // ==========================================
+
+  function initializeSubjects() {
+    const select = $("subjectSelect");
+
+    if (!select) return;
+
+    select.innerHTML = "";
+
+    SUBJECTS.forEach(subject => {
       const option = document.createElement("option");
+
       option.value = subject;
       option.textContent = subject;
-      subjectSelect.appendChild(option);
+
+      select.appendChild(option);
     });
   }
 
   function renderTasks() {
     const list = $("taskList");
+
     if (!list) return;
 
     list.innerHTML = "";
 
-    const sorted = [...data.tasks].sort((a, b) => {
-      if (a.done !== b.done) return Number(a.done) - Number(b.done);
+    const sortedTasks = [...data.tasks].sort((a, b) => {
+      if (a.done !== b.done) {
+        return Number(a.done) - Number(b.done);
+      }
 
-      return (a.due || "9999-99-99").localeCompare(
-        b.due || "9999-99-99"
+      return (a.due || "9999").localeCompare(
+        b.due || "9999"
       );
     });
 
-    if (!sorted.length) {
+    if (sortedTasks.length === 0) {
       const empty = document.createElement("p");
+
       empty.className = "empty-state";
-      empty.textContent = "ما عندك مهام دراسية حالياً. أضف أول مهمة.";
+      empty.textContent =
+        "ما عندك مهام دراسية حالياً. أضف أول مهمة.";
+
       list.appendChild(empty);
     }
 
-    sorted.forEach(task => {
+    sortedTasks.forEach(task => {
       const row = document.createElement("div");
-      row.className = `task-item${task.done ? " done" : ""}`;
 
-      const check = document.createElement("input");
-      check.type = "checkbox";
-      check.checked = Boolean(task.done);
-      check.setAttribute("aria-label", "تغيير حالة المهمة");
+      row.className = `task-item${task.done ? " completed" : ""}`;
 
-      check.addEventListener("change", () => {
-        task.done = check.checked;
-        task.completedAt = check.checked ? today : "";
+      const checkbox = document.createElement("input");
+
+      checkbox.type = "checkbox";
+      checkbox.checked = Boolean(task.done);
+      checkbox.setAttribute("aria-label", "إكمال المهمة");
+
+      checkbox.addEventListener("change", () => {
+        task.done = checkbox.checked;
+
+        if (checkbox.checked) {
+          task.completedAt = today;
+        } else {
+          delete task.completedAt;
+        }
 
         save();
         renderTasks();
         updateDashboard();
-        renderJourneyLog();
-
-        showToast(check.checked ? "أحسنت! أُنجزت المهمة" : "أُعيد فتح المهمة");
       });
 
       const main = document.createElement("div");
@@ -494,48 +590,70 @@
       const meta = document.createElement("span");
       meta.className = "task-meta";
 
-      const dueText = task.due
-        ? ` • الموعد: ${task.due}`
-        : "";
-
-      meta.textContent = `${task.subject}${dueText}`;
+      meta.textContent =
+        `${task.subject}` +
+        (task.due ? ` • الموعد: ${task.due}` : "");
 
       main.append(title, meta);
 
+      const actions = document.createElement("div");
+      actions.className = "task-actions";
+
       const remove = document.createElement("button");
+
       remove.type = "button";
-      remove.className = "delete-task";
       remove.textContent = "حذف";
 
       remove.addEventListener("click", () => {
-        if (!confirm("هل تريد حذف هذه المهمة؟")) return;
+        if (!confirm("هل تريد حذف هذه المهمة؟")) {
+          return;
+        }
 
-        data.tasks = data.tasks.filter(item => item.id !== task.id);
+        data.tasks = data.tasks.filter(
+          item => item.id !== task.id
+        );
 
         save();
         renderTasks();
         updateDashboard();
-        renderJourneyLog();
 
         showToast("تم حذف المهمة");
       });
 
-      row.append(check, main, remove);
+      actions.appendChild(remove);
+
+      row.append(
+        checkbox,
+        main,
+        actions
+      );
+
       list.appendChild(row);
     });
 
-    const completed = data.tasks.filter(task => task.done).length;
-    const open = data.tasks.length - completed;
+    const completed = data.tasks.filter(
+      task => task.done
+    ).length;
 
-    setText("completedTaskCount", completed);
-    setText("openTaskCount", open);
+    const opened = data.tasks.length - completed;
+
+    if ($("completedTaskCount")) {
+      $("completedTaskCount").textContent = completed;
+    }
+
+    if ($("openTaskCount")) {
+      $("openTaskCount").textContent = opened;
+    }
   }
 
   function addTask() {
     const titleInput = $("taskTitle");
+    const subjectSelect = $("subjectSelect");
     const dueInput = $("taskDue");
 
-    if (!titleInput) return;
+    if (!titleInput || !subjectSelect || !dueInput) {
+      return;
+    }
 
     const title = titleInput.value.trim();
 
@@ -545,217 +663,474 @@
       return;
     }
 
-    const due = dueInput ? dueInput.value : "";
-
     data.tasks.push({
-      id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-      subject: subjectSelect?.value || "بدون مادة",
+      id: `task-${Date.now()}-${Math.random()
+        .toString(16)
+        .slice(2)}`,
+
+      subject: subjectSelect.value || "بدون مادة",
       title,
-      due: isValidDateKey(due) ? due : "",
+      due: dueInput.value,
       done: false,
-      createdAt: today,
-      completedAt: ""
+      createdAt: today
     });
 
     titleInput.value = "";
-
-    if (dueInput) dueInput.value = "";
+    dueInput.value = "";
 
     save();
     renderTasks();
     updateDashboard();
-    renderJourneyLog();
 
     showToast("أُضيفت المهمة بنجاح");
   }
 
-  $("addTaskButton")?.addEventListener("click", addTask);
+  function initializeTasks() {
+    initializeSubjects();
 
-  $("taskTitle")?.addEventListener("keydown", event => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      addTask();
-    }
-  });
+    $("addTaskButton")?.addEventListener(
+      "click",
+      addTask
+    );
 
-  /* =========================================
-     الصلوات
-     ========================================= */
-
-  document.querySelectorAll("[data-prayer]").forEach(input => {
-    const name = input.dataset.prayer;
-
-    if (!PRAYERS.includes(name)) return;
-
-    input.checked = getTodayRecord().prayers.includes(name);
-
-    input.addEventListener("change", () => {
-      const day = getTodayRecord();
-
-      if (input.checked && !day.prayers.includes(name)) {
-        day.prayers.push(name);
+    $("taskTitle")?.addEventListener(
+      "keydown",
+      event => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          addTask();
+        }
       }
+    );
 
-      if (!input.checked) {
-        day.prayers = day.prayers.filter(item => item !== name);
-      }
-
-      save();
-      updateDashboard();
-      renderJourneyLog();
-
-      showToast("تم تحديث متابعة الصلاة");
-    });
-  });
-
-  /* =========================================
-     الورد والملاحظات الإيمانية
-     ========================================= */
-
-  const faithNote = $("faithNote");
-
-  if (faithNote) {
-    faithNote.value = data.faith[today] || "";
+    renderTasks();
   }
 
-  $("saveFaithButton")?.addEventListener("click", () => {
-    data.faith[today] = faithNote ? faithNote.value.trim() : "";
+  // ==========================================
+  // PRAYERS AND FAITH
+  // ==========================================
 
-    save();
+  function initializePrayers() {
+    document.querySelectorAll("[data-prayer]").forEach(input => {
+      const name = input.dataset.prayer;
 
-    setText("faithFeedback", "تم حفظ الورد اليومي.");
-    renderJourneyLog();
+      input.checked = data.days[today].prayers.includes(name);
 
-    showToast("تم حفظ الورد");
-  });
+      input.addEventListener("change", () => {
+        const prayers = data.days[today].prayers;
 
-  /* =========================================
-     الصحة: الماء والرياضة
-     ========================================= */
+        if (input.checked && !prayers.includes(name)) {
+          prayers.push(name);
+        }
+
+        if (!input.checked) {
+          data.days[today].prayers = prayers.filter(
+            item => item !== name
+          );
+        }
+
+        save();
+        updateDashboard();
+
+        showToast("تم تحديث متابعة الصلاة");
+      });
+    });
+  }
+
+  function initializeFaith() {
+    const note = $("faithNote");
+    const button = $("saveFaithButton");
+    const feedback = $("faithFeedback");
+
+    if (note) {
+      note.value = data.faith[today] || "";
+    }
+
+    if (!button || !note) return;
+
+    button.addEventListener("click", () => {
+      data.faith[today] = note.value.trim();
+
+      save();
+
+      if (feedback) {
+        feedback.textContent = "تم حفظ الورد اليومي.";
+      }
+
+      showToast("تم حفظ الورد");
+    });
+  }
+
+  // ==========================================
+  // HEALTH: WATER AND EXERCISE
+  // ==========================================
 
   function updateHealth() {
     const health = data.health[today];
 
-    setText("waterCount", health.water);
-    setText("exerciseMinutes", health.exercise);
-    setText("reportWater", health.water);
-    setText("reportExercise", health.exercise);
+    const water = $("waterCount");
+    const exercise = $("exerciseMinutes");
+
+    if (water) {
+      water.textContent = health.water;
+    }
+
+    if (exercise) {
+      exercise.textContent = health.exercise;
+    }
+
+    if ($("reportWater")) {
+      $("reportWater").textContent = health.water;
+    }
+
+    if ($("reportExercise")) {
+      $("reportExercise").textContent = health.exercise;
+    }
   }
 
-  $("waterPlus")?.addEventListener("click", () => {
-    data.health[today].water = Math.min(
-      30,
-      data.health[today].water + 1
-    );
+  function changeWater(amount) {
+    const health = data.health[today];
 
-    save();
-    updateHealth();
-    renderJourneyLog();
-  });
-
-  $("waterMinus")?.addEventListener("click", () => {
-    data.health[today].water = Math.max(
+    health.water = Math.max(
       0,
-      data.health[today].water - 1
+      Math.min(30, health.water + amount)
     );
 
-    save();
     updateHealth();
-    renderJourneyLog();
-  });
-
-  $("exercisePlus")?.addEventListener("click", () => {
-    data.health[today].exercise = Math.min(
-      1440,
-      data.health[today].exercise + 5
-    );
-
     save();
-    updateHealth();
-    renderJourneyLog();
-  });
+  }
 
-  $("exerciseMinus")?.addEventListener("click", () => {
-    data.health[today].exercise = Math.max(
+  function changeExercise(amount) {
+    const health = data.health[today];
+
+    health.exercise = Math.max(
       0,
-      data.health[today].exercise - 5
+      Math.min(1440, health.exercise + amount)
     );
 
-    save();
     updateHealth();
-    renderJourneyLog();
-  });
+    save();
+  }
 
-  /* =========================================
-     المواصلات
-     ========================================= */
+  function initializeHealth() {
+    $("waterPlus")?.addEventListener(
+      "click",
+      () => changeWater(1)
+    );
 
-  document.querySelectorAll("[data-commute]").forEach(input => {
-    const key = input.dataset.commute;
+    $("waterMinus")?.addEventListener(
+      "click",
+      () => changeWater(-1)
+    );
 
-    if (!["outbound", "return"].includes(key)) return;
+    $("exercisePlus")?.addEventListener(
+      "click",
+      () => changeExercise(5)
+    );
 
-    input.checked = Boolean(data.commute[today][key]);
+    $("exerciseMinus")?.addEventListener(
+      "click",
+      () => changeExercise(-5)
+    );
 
-    input.addEventListener("change", () => {
-      data.commute[today][key] = input.checked;
+    updateHealth();
+  }
+
+  // ==========================================
+  // COMMUTE ACADEMY — 50 VIDEOS
+  // ==========================================
+
+  function getJourneyDay() {
+    return Math.max(
+      1,
+      daysBetween(data.startDate, today) + 1
+    );
+  }
+
+  function isVideoWatched(videoId) {
+    return Boolean(data.videoWatched[videoId]);
+  }
+
+  function setVideoWatched(videoId, watched) {
+    if (watched) {
+      data.videoWatched[videoId] = true;
+    } else {
+      delete data.videoWatched[videoId];
+    }
+
+    save();
+    renderAcademyProgress();
+    renderVideoLibrary();
+  }
+
+  function getWatchedCount() {
+    return VIDEOS.filter(video =>
+      isVideoWatched(video.id)
+    ).length;
+  }
+
+  function renderAcademyProgress() {
+    const total = VIDEOS.length;
+    const watched = getWatchedCount();
+
+    const text = $("videoProgressText");
+    const bar = $("videoProgressBar");
+
+    if (text) {
+      text.textContent = `${watched} / ${total} فيديو`;
+    }
+
+    if (bar) {
+      const percentage = total
+        ? (watched / total) * 100
+        : 0;
+
+      bar.style.width = `${percentage}%`;
+    }
+  }
+
+  function categoryName(category) {
+    return CATEGORY_NAMES[category] || "متنوع";
+  }
+
+  function getVideo(day, slot) {
+    return VIDEOS.find(video =>
+      Number(video.day) === Number(day) &&
+      video.slot === slot
+    );
+  }
+
+  function renderDailyVideo(slot) {
+    const prefix = slot === "outbound"
+      ? "outbound"
+      : "return";
+
+    const title = $(`${prefix}Title`);
+    const description = $(`${prefix}Description`);
+    const category = $(`${prefix}Category`);
+    const dayLabel = $(`${prefix}Day`);
+    const link = $(`${prefix}Link`);
+    const checkbox = $(
+      slot === "outbound"
+        ? "outboundWatched"
+        : "returnWatched"
+    );
+
+    if (!title || !link || !checkbox) return;
+
+    const journeyDay = getJourneyDay();
+
+    if (dayLabel) {
+      dayLabel.textContent = `اليوم ${journeyDay}`;
+    }
+
+    const video = getVideo(journeyDay, slot);
+
+    if (!video) {
+      title.textContent = journeyDay > 25
+        ? "أكملت خطة الفيديوهات ذات الـ25 يوماً! أحسنت."
+        : "لا يوجد فيديو محدد لهذا اليوم.";
+
+      if (description) {
+        description.textContent = journeyDay > 25
+          ? "يمكنك مراجعة المكتبة واختيار أي فيديو تريد إعادة الاستماع إليه."
+          : "راجع مكتبة الفيديوهات الموجودة بالأسفل.";
+      }
+
+      if (category) {
+        category.textContent = "اكتملت الخطة";
+      }
+
+      link.hidden = true;
+      checkbox.checked = false;
+      checkbox.disabled = true;
+
+      return;
+    }
+
+    title.textContent = video.title;
+
+    if (description) {
+      description.textContent = video.description || "";
+    }
+
+    if (category) {
+      category.textContent = categoryName(video.category);
+    }
+
+    link.href = video.url || "https://www.youtube.com/";
+    link.hidden = false;
+
+    checkbox.disabled = false;
+    checkbox.checked = isVideoWatched(video.id);
+
+    checkbox.onchange = () => {
+      setVideoWatched(video.id, checkbox.checked);
+
+      showToast(
+        checkbox.checked
+          ? "أحسنت! تم تسجيل الاستماع للفيديو."
+          : "تم تحديث حالة الفيديو."
+      );
+    };
+  }
+
+  function renderVideoLibrary() {
+    const library = $("videoLibrary");
+
+    if (!library) return;
+
+    const filter = $("videoCategoryFilter")?.value || "all";
+
+    const filteredVideos = VIDEOS.filter(video =>
+      filter === "all" || video.category === filter
+    );
+
+    library.innerHTML = "";
+
+    if (!filteredVideos.length) {
+      const empty = document.createElement("p");
+
+      empty.className = "empty-state";
+      empty.textContent = "لا توجد فيديوهات في هذا المجال.";
+
+      library.appendChild(empty);
+      return;
+    }
+
+    filteredVideos.forEach(video => {
+      const item = document.createElement("article");
+
+      item.className = "video-library-item";
+
+      if (isVideoWatched(video.id)) {
+        item.classList.add("is-watched");
+      }
+
+      const details = document.createElement("div");
+
+      const heading = document.createElement("h4");
+      heading.textContent = video.title;
+
+      const info = document.createElement("p");
+
+      info.textContent =
+        `اليوم ${video.day} • ${categoryName(video.category)}`;
+
+      details.append(heading, info);
+
+      const actions = document.createElement("div");
+      actions.className = "video-library-actions";
+
+      const link = document.createElement("a");
+
+      link.href = video.url || "https://www.youtube.com/";
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "فتح ↗";
+
+      const watchedButton = document.createElement("button");
+
+      watchedButton.type = "button";
+      watchedButton.textContent = isVideoWatched(video.id)
+        ? "تم الاستماع ✓"
+        : "تحديد كمستمع";
+
+      watchedButton.addEventListener("click", () => {
+        const nextState = !isVideoWatched(video.id);
+
+        setVideoWatched(video.id, nextState);
+
+        showToast(
+          nextState
+            ? "تم تسجيل الاستماع للفيديو"
+            : "تم إلغاء تسجيل الاستماع"
+        );
+      });
+
+      actions.append(link, watchedButton);
+
+      item.append(details, actions);
+
+      library.appendChild(item);
+    });
+  }
+
+  function initializeAcademy() {
+    const filter = $("videoCategoryFilter");
+
+    if (filter) {
+      filter.addEventListener("change", renderVideoLibrary);
+    }
+
+    renderDailyVideo("outbound");
+    renderDailyVideo("return");
+
+    renderAcademyProgress();
+    renderVideoLibrary();
+  }
+
+  // ==========================================
+  // DAILY REVIEW
+  // ==========================================
+
+  function initializeReview() {
+    const review = data.reviews[today] || {};
+
+    const dailyReview = $("dailyReview");
+    const tomorrowPlan = $("tomorrowPlan");
+
+    if (dailyReview) {
+      dailyReview.value = review.done || "";
+    }
+
+    if (tomorrowPlan) {
+      tomorrowPlan.value = review.next || "";
+    }
+
+    $("saveReview")?.addEventListener("click", () => {
+      data.reviews[today] = {
+        done: dailyReview?.value.trim() || "",
+        next: tomorrowPlan?.value.trim() || ""
+      };
 
       save();
-      renderJourneyLog();
 
-      showToast("تم تحديث خطة المواصلات");
+      const feedback = $("reviewFeedback");
+
+      if (feedback) {
+        feedback.textContent = "تم حفظ مراجعتك. أحسنت!";
+      }
+
+      showToast("تم حفظ مراجعة اليوم");
     });
-  });
-
-  /* =========================================
-     مراجعة اليوم وخطة الغد
-     ========================================= */
-
-  const review = data.reviews[today] || {};
-
-  if ($("dailyReview")) {
-    $("dailyReview").value = review.done || "";
   }
 
-  if ($("tomorrowPlan")) {
-    $("tomorrowPlan").value = review.next || "";
-  }
-
-  $("saveReview")?.addEventListener("click", () => {
-    data.reviews[today] = {
-      done: $("dailyReview")?.value.trim() || "",
-      next: $("tomorrowPlan")?.value.trim() || ""
-    };
-
-    save();
-
-    setText("reviewFeedback", "تم حفظ مراجعتك. أحسنت!");
-
-    renderJourneyLog();
-    showToast("تم حفظ مراجعة اليوم");
-  });
-
-  /* =========================================
-     لوحة الملخص والإحصائيات
-     ========================================= */
+  // ==========================================
+  // DASHBOARD
+  // ==========================================
 
   function updateDashboard() {
-    const day = getTodayRecord();
-    const completedHabits = day.habits.length;
+    const completedHabits = data.days[today].habits.length;
 
     const progress = Math.round(
       (completedHabits / HABITS.length) * 100
     );
 
-    setText("progressCount", `${progress}%`);
-    setText("reportHabits", `${completedHabits} / ${HABITS.length}`);
+    if ($("progressCount")) {
+      $("progressCount").textContent = `${progress}%`;
+    }
 
-    const elapsed = Math.max(
-      0,
-      dateDifference(data.startDate, today)
-    );
+    if ($("reportHabits")) {
+      $("reportHabits").textContent =
+        `${completedHabits} / ${HABITS.length}`;
+    }
 
-    setText("dayCount", elapsed + 1);
+    const journeyDay = getJourneyDay();
+
+    if ($("dayCount")) {
+      $("dayCount").textContent = journeyDay;
+    }
 
     let streak = 0;
     const cursor = parseDate(today);
@@ -764,7 +1139,11 @@
       const key = localDateKey(cursor);
       const record = data.days[key];
 
-      if (!record || !Array.isArray(record.habits) || record.habits.length === 0) {
+      if (
+        !record ||
+        !Array.isArray(record.habits) ||
+        record.habits.length === 0
+      ) {
         break;
       }
 
@@ -772,93 +1151,109 @@
       cursor.setDate(cursor.getDate() - 1);
     }
 
-    setText("streakCount", streak);
+    if ($("streakCount")) {
+      $("streakCount").textContent = streak;
+    }
 
-    const completedTasks = data.tasks.filter(task => task.done).length;
+    const completedTasks = data.tasks.filter(
+      task => task.done
+    ).length;
+
     const openTasks = data.tasks.length - completedTasks;
 
-    setText("taskCount", openTasks);
-    setText("reportTasks", completedTasks);
+    if ($("taskCount")) {
+      $("taskCount").textContent = openTasks;
+    }
+
+    if ($("reportTasks")) {
+      $("reportTasks").textContent = completedTasks;
+    }
+
+    updateHealth();
   }
 
-  /* =========================================
-     سجل الرحلة اليومي
-     ========================================= */
+  // ==========================================
+  // JOURNEY LOG
+  // ==========================================
 
   function getLogDates() {
-    const dates = new Set();
-
-    Object.keys(data.days).forEach(key => {
-      if (isValidDateKey(key) && key <= today) dates.add(key);
-    });
+    const dates = new Set(
+      Object.keys(data.dailyLogs || {})
+    );
 
     [
+      data.days,
+      data.health,
       data.sleep,
       data.faith,
-      data.health,
       data.commute,
       data.reviews
-    ].forEach(collection => {
-      Object.keys(collection).forEach(key => {
-        if (isValidDateKey(key) && key <= today) dates.add(key);
+    ].forEach(group => {
+      Object.keys(group || {}).forEach(date => {
+        dates.add(date);
       });
     });
 
     data.tasks.forEach(task => {
-      if (isValidDateKey(task.createdAt) && task.createdAt <= today) {
+      if (task.createdAt) {
         dates.add(task.createdAt);
       }
 
-      if (isValidDateKey(task.completedAt) && task.completedAt <= today) {
+      if (task.completedAt) {
         dates.add(task.completedAt);
       }
     });
 
-    return [...dates].sort((a, b) => b.localeCompare(a));
+    return [...dates]
+      .filter(date => /^\d{4}-\d{2}-\d{2}$/.test(date))
+      .sort((a, b) => b.localeCompare(a));
   }
 
-  function getLogPeriod() {
-    const selector = $("logPeriod");
-    return selector ? selector.value : "7";
+  function snapshotFor(date) {
+    return data.dailyLogs[date] ||
+      buildDaySnapshot(date);
   }
 
-  function getLogDescription(key) {
-    const day = getDayRecord(key);
-    const health = data.health[key] || {};
-    const commute = data.commute[key] || {};
+  function dayCompletion(snapshot) {
+    const habits = snapshot.habits?.length || 0;
+    const prayers = snapshot.prayers?.length || 0;
+    const tasks = snapshot.tasksCompleted?.length || 0;
 
-    const habits = day.habits.length;
-    const prayers = day.prayers.length;
-    const water = Number(health.water) || 0;
-    const exercise = Number(health.exercise) || 0;
-
-    const taskCount = data.tasks.filter(task =>
-      task.createdAt === key || task.completedAt === key
-    ).length;
-
-    return {
-      habits,
-      prayers,
-      water,
-      exercise,
-      taskCount,
-      commuteCount: Number(Boolean(commute.outbound)) +
-        Number(Boolean(commute.return)),
-      hasSleep: Boolean(data.sleep[key]),
-      percentage: Math.round((habits / HABITS.length) * 100)
-    };
+    return Math.round(
+      (
+        (habits / HABITS.length) +
+        (prayers / PRAYERS.length) +
+        Math.min(1, tasks / 2)
+      ) / 3 * 100
+    );
   }
 
   function renderJourneyLog() {
     const body = $("journeyLogBody");
+
     if (!body) return;
 
-    const period = getLogPeriod();
+    const period = $("logPeriod")?.value || "all";
+
     let dates = getLogDates();
 
     if (period !== "all") {
-      const count = Number(period) || 7;
-      dates = dates.slice(0, count);
+      const limit = parseDate(today);
+
+      limit.setDate(
+        limit.getDate() - (Number(period) - 1)
+      );
+
+      const minimumDate = localDateKey(limit);
+
+      dates = dates.filter(date =>
+        date >= minimumDate && date <= today
+      );
+    }
+
+    if ($("logDaysCount")) {
+      $("logDaysCount").textContent =
+        `${dates.length} يوم مسجل`;
     }
 
     body.innerHTML = "";
@@ -867,146 +1262,174 @@
       const row = document.createElement("tr");
       const cell = document.createElement("td");
 
-      cell.colSpan = 5;
-      cell.textContent = "لسه ما عندك سجلات. ابدأ يومك وسجّل إنجازاتك.";
+      cell.colSpan = 8;
+      cell.className = "empty-state";
+      cell.textContent =
+        "لسه ما عندك أيام مسجلة. ابدأ بتسجيل نشاطك اليوم.";
 
       row.appendChild(cell);
       body.appendChild(row);
 
-      setText("logDaysCount", "0");
       return;
     }
 
-    dates.forEach(key => {
-      const summary = getLogDescription(key);
+    dates.forEach(date => {
+      const record = snapshotFor(date);
       const row = document.createElement("tr");
 
-      const dateCell = document.createElement("td");
-      dateCell.textContent = formatDate(key);
+      const formattedDate = new Intl.DateTimeFormat(
+        "ar",
+        {
+          day: "numeric",
+          month: "short",
+          year: "numeric"
+        }
+      ).format(parseDate(date));
 
-      const habitCell = document.createElement("td");
-      habitCell.textContent = `${summary.habits}/${HABITS.length}`;
+      const values = [
+        formattedDate,
+        `${record.habits?.length || 0} / ${HABITS.length}`,
+        `${record.prayers?.length || 0} / 5`,
+        `${record.water || 0} كوب`,
+        `${record.exercise || 0} د`,
+        `${record.tasksCompleted?.length || 0} مكتملة`,
+        `${dayCompletion(record)}%`
+      ];
 
-      const prayerCell = document.createElement("td");
-      prayerCell.textContent = `${summary.prayers}/${PRAYERS.length}`;
+      values.forEach((value, index) => {
+        const cell = document.createElement("td");
 
-      const healthCell = document.createElement("td");
-      healthCell.textContent =
-        `${summary.water} ماء • ${summary.exercise} دقيقة رياضة`;
+        cell.textContent = value;
+
+        row.appendChild(cell);
+      });
 
       const actionCell = document.createElement("td");
       const button = document.createElement("button");
 
       button.type = "button";
-      button.className = "view-day-button";
-      button.textContent = "التفاصيل";
+      button.textContent = "عرض";
 
       button.addEventListener("click", () => {
-        openDayDetails(key);
+        showDayDetails(date);
       });
 
       actionCell.appendChild(button);
-      row.append(dateCell, habitCell, prayerCell, healthCell, actionCell);
+      row.appendChild(actionCell);
+
       body.appendChild(row);
     });
-
-    setText("logDaysCount", String(dates.length));
   }
 
-  /* =========================================
-     تفاصيل اليوم
-     ========================================= */
-
-  function addDetailLine(container, label, value) {
-    const paragraph = document.createElement("p");
-    const strong = document.createElement("strong");
-
-    strong.textContent = `${label}: `;
-    paragraph.append(strong, document.createTextNode(String(value)));
-
-    container.appendChild(paragraph);
-  }
-
-  function openDayDetails(key) {
-    selectedDetailDate = key;
+  function showDayDetails(date) {
+    const record = snapshotFor(date);
 
     const panel = $("dayDetails");
     const content = $("dayDetailsContent");
+    const heading = $("detailDate");
 
-    if (!panel || !content) return;
+    if (!panel || !content || !heading) return;
 
-    const day = getDayRecord(key);
-    const health = data.health[key] || {};
-    const commute = data.commute[key] || {};
-    const sleep = data.sleep[key] || {};
-    const faith = data.faith[key] || "";
-    const review = data.reviews[key] || {};
+    heading.textContent = new Intl.DateTimeFormat(
+      "ar",
+      {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      }
+    ).format(parseDate(date));
+
+    const habitNames = {
+      prayer: "المحافظة على الصلاة",
+      study: "المذاكرة والتركيز",
+      exercise: "الحركة والرياضة",
+      phone: "استخدام واعٍ للهاتف",
+      sleep: "الالتزام بالنوم",
+      discipline: "الابتعاد عن الإباحية"
+    };
+
+    const watchedCount = Array.isArray(record.videosWatched)
+      ? record.videosWatched.length
+      : 0;
+
+    const details = [
+      [
+        "العادات",
+        (record.habits || [])
+          .map(key => habitNames[key] || key)
+          .join("، ") || "لم تسجل عادات مكتملة"
+      ],
+      [
+        "الصلوات",
+        (record.prayers || []).join("، ") ||
+          "لا توجد صلوات مسجلة"
+      ],
+      [
+        "الماء والرياضة",
+        `${record.water || 0} كوب ماء — ${record.exercise || 0} دقيقة نشاط`
+      ],
+      [
+        "النوم",
+        record.sleep?.start && record.sleep?.end
+          ? `النوم ${record.sleep.start} — الاستيقاظ ${record.sleep.end}`
+          : "لم يسجل النوم"
+      ],
+      [
+        "المواصلات",
+        `الذهاب: ${record.commute?.outbound ? "تم" : "لم يسجل"} — العودة: ${record.commute?.return ? "تم" : "لم تسجل"}`
+      ],
+      [
+        "فيديوهات الأكاديمية",
+        `${watchedCount} فيديو تم تسجيل الاستماع إليه`
+      ],
+      [
+        "الدراسة",
+        `مهام أضيفت: ${(record.tasksCreated || []).length} — مهام أُكملت: ${(record.tasksCompleted || []).length}`
+      ],
+      [
+        "الورد والأذكار",
+        record.faith || "لا يوجد تسجيل"
+      ],
+      [
+        "أفضل إنجاز اليوم",
+        record.review || "لم تكتب مراجعة"
+      ],
+      [
+        "خطة الغد",
+        record.tomorrow || "لم تكتب خطة"
+      ],
+      [
+        "المهام",
+        [
+          ...(record.tasksCreated || []).map(task =>
+            `${task.subject}: ${task.title}${task.done ? " (مكتملة)" : ""}`
+          ),
+          ...(record.tasksCompleted || []).map(task =>
+            `${task.subject}: ${task.title} (أُكملت اليوم)`
+          )
+        ].join("\n") || "لا توجد مهام مسجلة"
+      ]
+    ];
 
     content.innerHTML = "";
 
-    const habitsText = day.habits.length
-      ? day.habits.map(item => HABIT_LABELS[item] || item).join("، ")
-      : "لم يتم تسجيل عادات مكتملة";
+    details.forEach(([title, value]) => {
+      const item = document.createElement("div");
 
-    const prayersText = day.prayers.length
-      ? day.prayers.join("، ")
-      : "لم يتم تسجيل صلوات";
+      item.className = "detail-item";
 
-    addDetailLine(content, "العادات", habitsText);
-    addDetailLine(content, "الصلوات", prayersText);
-    addDetailLine(content, "الماء", `${Number(health.water) || 0} كوب`);
-    addDetailLine(content, "الرياضة", `${Number(health.exercise) || 0} دقيقة`);
+      const label = document.createElement("b");
+      label.textContent = title;
 
-    addDetailLine(
-      content,
-      "المواصلات",
-      `الذهاب: ${commute.outbound ? "تم" : "لم يسجل"}، العودة: ${commute.return ? "تم" : "لم تسجل"}`
-    );
+      const text = document.createElement("span");
+      text.textContent = value;
 
-    if (sleep.start || sleep.end) {
-      const duration = sleepDuration(sleep.start, sleep.end);
-
-      addDetailLine(
-        content,
-        "النوم",
-        `${sleep.start || "؟"} إلى ${sleep.end || "؟"} — ${Math.floor(duration / 60)} ساعة و${duration % 60} دقيقة`
-      );
-    } else {
-      addDetailLine(content, "النوم", "لم يتم تسجيل النوم");
-    }
-
-    addDetailLine(content, "الورد الإيماني", faith || "لا توجد ملاحظات");
-
-    const createdTasks = data.tasks.filter(task => task.createdAt === key);
-    const completedTasks = data.tasks.filter(task => task.completedAt === key);
-
-    const taskHeading = document.createElement("h4");
-    taskHeading.textContent = "المهام المرتبطة بهذا اليوم";
-    content.appendChild(taskHeading);
-
-    if (!createdTasks.length && !completedTasks.length) {
-      addDetailLine(content, "المهام", "لا توجد مهام مرتبطة بهذا اليوم");
-    } else {
-      createdTasks.forEach(task => {
-        addDetailLine(
-          content,
-          "مهمة أُضيفت",
-          `${task.title} — ${task.subject}`
-        );
-      });
-
-      completedTasks.forEach(task => {
-        addDetailLine(content, "مهمة أُنجزت", task.title);
-      });
-    }
-
-    addDetailLine(content, "مراجعة اليوم", review.done || "لم تسجل");
-    addDetailLine(content, "خطة الغد", review.next || "لم تسجل");
-
-    setText("detailDate", formatDate(key));
+      item.append(label, text);
+      content.appendChild(item);
+    });
 
     panel.hidden = false;
-    panel.classList.add("open");
 
     panel.scrollIntoView({
       behavior: "smooth",
@@ -1014,47 +1437,33 @@
     });
   }
 
-  $("closeDayDetails")?.addEventListener("click", () => {
-    const panel = $("dayDetails");
+  function initializeJourneyLog() {
+    $("logPeriod")?.addEventListener(
+      "change",
+      renderJourneyLog
+    );
 
-    if (panel) {
-      panel.classList.remove("open");
-      panel.hidden = true;
-    }
+    $("closeDayDetails")?.addEventListener(
+      "click",
+      () => {
+        const details = $("dayDetails");
 
-    selectedDetailDate = null;
-  });
-
-  $("logPeriod")?.addEventListener("change", renderJourneyLog);
-
-  /* =========================================
-     التقارير
-     ========================================= */
-
-  function updateReports() {
-    const health = data.health[today] || {};
-
-    setText("reportHabits", `${getTodayRecord().habits.length} / ${HABITS.length}`);
-    setText("reportTasks", data.tasks.filter(task => task.done).length);
-    setText("reportWater", Number(health.water) || 0);
-    setText("reportExercise", Number(health.exercise) || 0);
+        if (details) {
+          details.hidden = true;
+        }
+      }
+    );
   }
 
-  /* =========================================
-     النسخ الاحتياطي والتصدير
-     ========================================= */
+  // ==========================================
+  // BACKUP EXPORT AND IMPORT
+  // ==========================================
 
-  $("exportData")?.addEventListener("click", () => {
+  function exportBackup() {
     try {
-      const backup = {
-        ...data,
-        exportedAt: new Date().toISOString(),
-        application: "AL-FAROUQ 1%"
-      };
-
       const blob = new Blob(
-        [JSON.stringify(backup, null, 2)],
-        { type: "application/json;charset=utf-8" }
+        [JSON.stringify(data, null, 2)],
+        { type: "application/json" }
       );
 
       const url = URL.createObjectURL(blob);
@@ -1067,73 +1476,121 @@
       link.click();
       link.remove();
 
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 1000);
 
       showToast("تم تجهيز النسخة الاحتياطية");
+
     } catch (error) {
       console.error(error);
-      showToast("تعذر إنشاء النسخة الاحتياطية");
+      showToast("تعذر تصدير البيانات");
     }
-  });
+  }
 
-  /* =========================================
-     استيراد النسخة الاحتياطية
-     ========================================= */
+  function initializeBackup() {
+    $("exportData")?.addEventListener(
+      "click",
+      exportBackup
+    );
 
-  $("importButton")?.addEventListener("click", () => {
-    $("importFile")?.click();
-  });
+    const importButton = $("importButton");
+    const importFile = $("importFile");
 
-  $("importFile")?.addEventListener("change", async event => {
-    const file = event.target.files?.[0];
+    if (!importButton || !importFile) return;
 
-    if (!file) return;
+    importButton.addEventListener("click", () => {
+      importFile.click();
+    });
 
-    try {
-      const imported = JSON.parse(await file.text());
+    importFile.addEventListener("change", async event => {
+      const file = event.target.files?.[0];
 
-      if (
-        !imported ||
-        typeof imported !== "object" ||
-        !imported.days ||
-        !Array.isArray(imported.tasks)
-      ) {
-        throw new Error("صيغة الملف غير صحيحة");
+      if (!file) return;
+
+      try {
+        const imported = JSON.parse(
+          await file.text()
+        );
+
+        if (
+          !isObject(imported) ||
+          !isObject(imported.days) ||
+          !Array.isArray(imported.tasks)
+        ) {
+          throw new Error("نسخة احتياطية غير صحيحة");
+        }
+
+        if (
+          !confirm(
+            "سيتم استبدال البيانات الحالية بالنسخة المستوردة. هل تريد المتابعة؟"
+          )
+        ) {
+          return;
+        }
+
+        const normalized = normalizeData(imported);
+
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify(normalized)
+        );
+
+        showToast("تم الاستيراد. سيتم تحديث الصفحة.");
+
+        setTimeout(() => {
+          location.reload();
+        }, 800);
+
+      } catch (error) {
+        console.error(error);
+
+        showToast(
+          "تعذر استيراد الملف. تأكد أنه ملف نسخة احتياطية صحيح."
+        );
+
+      } finally {
+        importFile.value = "";
       }
+    });
+  }
 
-      if (!confirm("سيتم استبدال البيانات الحالية بالنسخة المستوردة. هل تريد المتابعة؟")) {
-        return;
-      }
+  // ==========================================
+  // INITIALIZE APPLICATION
+  // ==========================================
 
-      const normalized = normalizeData(imported);
+  function initializeApp() {
+    initializeHeader();
+    initializeHabits();
+    initializeSleep();
+    initializeTasks();
+    initializePrayers();
+    initializeFaith();
+    initializeHealth();
+    initializeAcademy();
+    initializeReview();
+    initializeJourneyLog();
+    initializeBackup();
 
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(normalized)
-      );
+    updateDashboard();
+    renderTasks();
+    renderJourneyLog();
 
-      showToast("تم استيراد البيانات بنجاح");
+    save();
 
-      setTimeout(() => location.reload(), 700);
-    } catch (error) {
-      console.error("خطأ الاستيراد:", error);
-      showToast("تعذر استيراد الملف. تأكد أنه نسخة احتياطية صحيحة.");
-    } finally {
-      event.target.value = "";
-    }
-  });
+    console.log(
+      "AL-FAROUQ 1% — التطبيق جاهز للعمل"
+    );
+  }
 
-  /* =========================================
-     بدء الرحلة وتحديث الصفحة
-     ========================================= */
+  if (document.readyState === "loading") {
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializeApp,
+      { once: true }
+    );
+  } else {
+    initializeApp();
+  }
 
-  renderTasks();
-  updateHealth();
-  updateDashboard();
-  updateReports();
-  renderJourneyLog();
-
-  save();
-
-  console.log("AL-FAROUQ 1% — التطبيق جاهز");
 })();
