@@ -4,90 +4,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b0d0c">
 
-    <title>الفاروق 1% | رحلة التغيير</title>
-
-    <meta name="description"
-          content="رحلة الفاروق للتطوير اليومي بنسبة 1%">
+    <title>AL-FAROUQ 1% | رحلة التغيير</title>
+    <meta name="description" content="رحلة الفاروق للتغيير والتطوير اليومي بنسبة 1%">
 
     <link rel="stylesheet" href="style.css">
-
-    <script src="data.js" defer></script>
     <script src="app.js" defer></script>
 </head>
 
 <body>
 
-    <!-- رأس الصفحة -->
-    <header class="header">
-        <div class="logo">
-            <span>1%</span>
+<header class="header">
+    <a href="#home" class="logo">
+        <span class="logo-mark">1%</span>
+        <div>
+            <strong>AL-FAROUQ</strong>
+            <small>رحلة التغيير</small>
+        </div>
+    </a>
+
+    <button class="menu-button" id="menuButton" aria-label="فتح القائمة">☰</button>
+</header>
+
+<nav class="navigation" id="navigation">
+    <a href="#home">الرئيسية</a>
+    <a href="#habits">العادات</a>
+    <a href="#study">الدراسة</a>
+    <a href="#faith">الصلاة</a>
+    <a href="#health">الصحة</a>
+    <a href="#transport">المواصلات</a>
+    <a href="#reports">التقارير</a>
+</nav>
+
+<main id="home">
+
+    <section class="welcome panel">
+        <div class="welcome-content">
+            <span class="eyebrow">رحلة الألف ميل تبدأ بخطوة</span>
+            <h1>أهلاً بك يا فاروق 👋</h1>
+            <p>لا تبحث عن الكمال، فقط كن أفضل بنسبة 1% كل يوم.</p>
+            <div id="currentDate" class="date-display"></div>
+        </div>
+        <div class="welcome-decoration">1%</div>
+    </section>
+
+    <section class="statistics">
+        <article class="stat-card">
+            <span class="stat-icon">🔥</span>
+            <strong id="streakCount">0</strong>
+            <small>أيام الاستمرار</small>
+        </article>
+
+        <article class="stat-card">
+            <span class="stat-icon">🎯</span>
+            <strong id="progressCount">0%</strong>
+            <small>إنجاز اليوم</small>
+        </article>
+
+        <article class="stat-card">
+            <span class="stat-icon">📅</span>
+            <strong id="dayCount">1</strong>
+            <small>يوم في الرحلة</small>
+        </article>
+    </section>
+
+    <section class="section" id="habits">
+        <div class="section-heading">
             <div>
-                <h1>الفاروق</h1>
-                <small>رحلة التغيير</small>
+                <span class="eyebrow">DAILY ROUTINE</span>
+                <h2>عاداتي اليومية</h2>
+                <p>خطوات صغيرة تصنع فارقاً كبيراً.</p>
             </div>
+            <span class="section-icon">🎯</span>
         </div>
 
-        <button class="menu-button" id="menuButton">
-            ☰
-        </button>
-    </header>
-
-    <!-- القائمة الرئيسية -->
-    <nav class="navigation" id="navigation">
-        <a href="#home">الرئيسية</a>
-        <a href="#habits">العادات</a>
-        <a href="#study">الدراسة</a>
-        <a href="#faith">الجانب الإيماني</a>
-        <a href="#health">الصحة</a>
-        <a href="#reports">إنجازاتي</a>
-    </nav>
-
-    <main>
-
-        <!-- الترحيب -->
-        <section class="welcome" id="home">
-            <p class="welcome-label">رحلة الألف ميل تبدأ بخطوة</p>
-
-            <h2>أهلاً بك يا فاروق 👋</h2>
-
-            <p>
-                لا تبحث عن الكمال، فقط كن أفضل بنسبة 1% كل يوم.
-            </p>
-
-            <div class="date-display" id="currentDate"></div>
-        </section>
-
-        <!-- إحصائيات الرحلة -->
-        <section class="statistics">
-            <div class="stat-card">
-                <span>🔥</span>
-                <h3 id="streakCount">0</h3>
-                <p>أيام الاستمرار</p>
+        <div class="panel">
+            <div class="progress-track">
+                <div class="progress-fill" id="habitProgressBar"></div>
             </div>
+            <p class="progress-caption" id="habitProgressText">0 من 6 عادات مكتملة</p>
 
-            <div class="stat-card">
-                <span>🎯</span>
-                <h3 id="progressCount">0%</h3>
-                <p>إنجاز اليوم</p>
-            </div>
-
-            <div class="stat-card">
-                <span>📅</span>
-                <h3 id="dayCount">1</h3>
-                <p>يوم في الرحلة</p>
-            </div>
-        </section>
-
-        <!-- روتين اليوم -->
-        <section class="section" id="habits">
-            <div class="section-heading">
-                <h2>روتين اليوم</h2>
-                <p>خطوات صغيرة تصنع فارقاً كبيراً</p>
-            </div>
-
-            <div class="routine-card">
-
+            <div class="habit-list">
                 <label class="habit-item">
                     <input type="checkbox" data-habit="prayer">
                     <span>المحافظة على الصلوات</span>
@@ -117,121 +115,234 @@
                     <input type="checkbox" data-habit="discipline">
                     <span>الابتعاد عن الإباحية</span>
                 </label>
-
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- الساعة البيولوجية -->
-        <section class="section" id="sleep">
-            <div class="section-heading">
-                <h2>ساعتي البيولوجية ⏰</h2>
-                <p>نظام ثابت طوال أيام الأسبوع</p>
-            </div>
-
-            <div class="sleep-card">
-                <div>
-                    <strong>04:00 صباحاً</strong>
-                    <p>موعد الاستيقاظ</p>
-                </div>
-
-                <div>
-                    <strong>08:30 مساءً</strong>
-                    <p>الاستعداد للنوم</p>
-                </div>
-
-                <div>
-                    <strong>09:00 مساءً</strong>
-                    <p>موعد النوم</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- الجامعة والدراسة -->
-        <section class="section" id="study">
-            <div class="section-heading">
+    <section class="section" id="study">
+        <div class="section-heading">
+            <div>
+                <span class="eyebrow">UNIVERSITY</span>
                 <h2>رحلتي الجامعية 🎓</h2>
-                <p>الثلاثاء والأربعاء والخميس أيام الجامعة</p>
+                <p>الثلاثاء والأربعاء والخميس أيام الجامعة.</p>
             </div>
+        </div>
 
-            <div class="study-card">
+        <div class="panel">
+            <div class="section-subheading">
                 <h3>مواد الفصل الدراسي</h3>
+                <span class="muted">8 مواد</span>
+            </div>
+            <div id="subjectsList" class="subjects-list"></div>
+        </div>
 
-                <div id="subjectsList" class="subjects-list">
-                    <!-- المواد ستظهر من ملف data.js -->
+        <div class="panel task-panel">
+            <div class="section-subheading">
+                <div>
+                    <h3>مهام المذاكرة</h3>
+                    <small class="muted">نظّم واجباتك ومهامك</small>
                 </div>
+                <button class="primary-button" id="addTaskButton">+ إضافة مهمة</button>
             </div>
 
-            <div class="transport-card">
-                <h3>وقت المواصلات 🚌</h3>
-                <p>حوالي ساعتين ذهاباً وساعتين عودة.</p>
-                <p>
-                    خطتي: فيديو تعليمي في الذهاب،
-                    وفيديو آخر في العودة، مع وقت للراحة والاستماع.
-                </p>
-            </div>
-        </section>
+            <form id="taskForm" class="task-form hidden">
+                <input id="taskTitle" type="text" placeholder="اسم المهمة أو الواجب" required>
+                <select id="taskSubject" required>
+                    <option value="">اختر المادة</option>
+                </select>
+                <input id="taskDate" type="date">
+                <button class="primary-button" type="submit">حفظ المهمة</button>
+                <button class="secondary-button" type="button" id="cancelTaskButton">إلغاء</button>
+            </form>
 
-        <!-- الجانب الإيماني -->
-        <section class="section" id="faith">
-            <div class="section-heading">
-                <h2>زاد يومي 🤍</h2>
-                <p>قوّي علاقتك بالله كل يوم</p>
+            <div id="tasksList" class="tasks-list">
+                <p class="empty-state">لا توجد مهام حتى الآن.</p>
             </div>
+        </div>
+    </section>
 
-            <div class="faith-card">
-                <h3>وردك اليومي</h3>
-                <p>خصص وقتاً للقرآن والأذكار والدعاء.</p>
+    <section class="section" id="faith">
+        <div class="section-heading">
+            <div>
+                <span class="eyebrow">FAITH</span>
+                <h2>صلاتي وعبادتي 🤍</h2>
                 <p>الصلاة أولاً، ومنها تبدأ بركة يومك.</p>
             </div>
-        </section>
+        </div>
 
-        <!-- الصحة -->
-        <section class="section" id="health">
-            <div class="section-heading">
-                <h2>صحتي ولياقتي 💪</h2>
-                <p>اهتم بجسمك كما تهتم بعقلك</p>
+        <div class="panel">
+            <div class="section-subheading">
+                <h3>متابعة الصلوات</h3>
+                <span class="muted" id="prayerCount">0 من 5</span>
             </div>
 
-            <div class="health-card">
-                <p>💧 متابعة شرب الماء</p>
-                <p>🏃 التمارين والحركة</p>
-                <p>🥗 التغذية المتوازنة</p>
-                <p>😴 النوم الكافي</p>
-            </div>
-        </section>
-
-        <!-- مراجعة اليوم -->
-        <section class="section" id="reports">
-            <div class="section-heading">
-                <h2>مراجعة اليوم ✍️</h2>
-                <p>راجع يومك وتعلم من تجربتك</p>
+            <div class="prayer-list">
+                <label><input type="checkbox" data-prayer="fajr"> الفجر</label>
+                <label><input type="checkbox" data-prayer="dhuhr"> الظهر</label>
+                <label><input type="checkbox" data-prayer="asr"> العصر</label>
+                <label><input type="checkbox" data-prayer="maghrib"> المغرب</label>
+                <label><input type="checkbox" data-prayer="isha"> العشاء</label>
             </div>
 
-            <div class="review-card">
-                <label for="dailyReview">
-                    ما أفضل شيء أنجزته اليوم؟
+            <p class="muted small-note">ضع علامة بعد أداء الصلاة. هذه متابعة شخصية وليست بديلاً عن مواقيت الصلاة.</p>
+        </div>
+
+        <div class="panel faith-card">
+            <span class="eyebrow">DAILY REMINDER</span>
+            <h3>﴿ وَقُل رَّبِّ زِدْنِي عِلْمًا ﴾</h3>
+            <p>سورة طه، الآية 114</p>
+            <p class="muted">اجعل العلم والنية الصالحة جزءاً من رحلتك.</p>
+        </div>
+    </section>
+
+    <section class="section" id="sleep">
+        <div class="section-heading">
+            <div>
+                <span class="eyebrow">SLEEP ROUTINE</span>
+                <h2>ساعتي البيولوجية ⏰</h2>
+                <p>هدفنا الاستيقاظ في الرابعة والنوم في التاسعة.</p>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="sleep-schedule">
+                <div>
+                    <strong>04:00</strong>
+                    <span>الاستيقاظ</span>
+                </div>
+                <div>
+                    <strong>20:30</strong>
+                    <span>الاستعداد للنوم</span>
+                </div>
+                <div>
+                    <strong>21:00</strong>
+                    <span>النوم</span>
+                </div>
+            </div>
+
+            <div class="sleep-inputs">
+                <label>
+                    وقت النوم الفعلي
+                    <input type="time" id="sleepTime" value="21:00">
                 </label>
-
-                <textarea
-                    id="dailyReview"
-                    placeholder="اكتب إنجازك اليوم..."
-                    rows="4">
-                </textarea>
-
-                <button id="saveReview">
-                    حفظ مراجعة اليوم
-                </button>
+                <label>
+                    وقت الاستيقاظ الفعلي
+                    <input type="time" id="wakeTime" value="04:00">
+                </label>
+                <button class="primary-button" id="saveSleepButton">حفظ سجل النوم</button>
             </div>
-        </section>
+            <p id="sleepResult" class="result-text"></p>
+        </div>
+    </section>
 
-    </main>
+    <section class="section" id="health">
+        <div class="section-heading">
+            <div>
+                <span class="eyebrow">HEALTH</span>
+                <h2>صحتي ولياقتي 💪</h2>
+                <p>اهتم بجسمك كما تهتم بعقلك.</p>
+            </div>
+        </div>
 
-    <!-- تذييل الصفحة -->
-    <footer class="footer">
-        <h3>AL-FAROUQ 1%</h3>
-        <p>أنا لا أنافس أحداً، أنا أبني نسخة أفضل من نفسي.</p>
-        <small>© 2026 — رحلة التغيير مستمرة</small>
-    </footer>
+        <div class="health-grid">
+            <div class="panel health-card">
+                <span class="health-icon">💧</span>
+                <h3>شرب الماء</h3>
+                <strong id="waterCount">0</strong>
+                <p class="muted">كوب من هدف 8 أكواب</p>
+                <div class="action-row">
+                    <button class="secondary-button" id="removeWater">−</button>
+                    <button class="primary-button" id="addWater">+ كوب ماء</button>
+                </div>
+            </div>
+
+            <div class="panel health-card">
+                <span class="health-icon">🏃</span>
+                <h3>الرياضة</h3>
+                <strong id="exerciseCount">0</strong>
+                <p class="muted">دقيقة نشاط اليوم</p>
+                <div class="action-row">
+                    <button class="primary-button" id="addExercise">+ 10 دقائق</button>
+                    <button class="secondary-button" id="removeExercise">−</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="transport">
+        <div class="section-heading">
+            <div>
+                <span class="eyebrow">COMMUTE TIME</span>
+                <h2>وقت المواصلات 🚌</h2>
+                <p>حوالي ساعتين ذهاباً وساعتين عودة.</p>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="commute-grid">
+                <div>
+                    <h3>الذهاب</h3>
+                    <p>فيديو تعليمي أو محتوى صوتي.</p>
+                    <label class="check-row">
+                        <input type="checkbox" data-commute="going">
+                        أنجزت خطة الذهاب
+                    </label>
+                </div>
+
+                <div>
+                    <h3>العودة</h3>
+                    <p>فيديو آخر أو استماع وراحة.</p>
+                    <label class="check-row">
+                        <input type="checkbox" data-commute="returning">
+                        أنجزت خطة العودة
+                    </label>
+                </div>
+            </div>
+            <p class="muted small-note">لا تضغط على نفسك لاستغلال كل دقيقة. الراحة جزء من الخطة.</p>
+        </div>
+    </section>
+
+    <section class="section" id="reports">
+        <div class="section-heading">
+            <div>
+                <span class="eyebrow">DAILY REVIEW</span>
+                <h2>مراجعة اليوم ✍️</h2>
+                <p>تعلّم من يومك واستعد للغد.</p>
+            </div>
+        </div>
+
+        <div class="panel review-card">
+            <label for="dailyReview">ما أفضل شيء أنجزته اليوم؟</label>
+            <textarea id="dailyReview" rows="3" placeholder="اكتب إنجازك..."></textarea>
+
+            <label for="tomorrowPlan">ما أهم شيء تريد إنجازه غداً؟</label>
+            <textarea id="tomorrowPlan" rows="3" placeholder="خطتك للغد..."></textarea>
+
+            <button class="primary-button" id="saveReview">حفظ المراجعة</button>
+            <p id="reviewStatus" class="result-text"></p>
+        </div>
+
+        <div class="panel backup-panel">
+            <h3>نسخة احتياطية لبياناتك</h3>
+            <p class="muted">احتفظ بنسخة من بياناتك أو استعد نسخة سابقة.</p>
+            <div class="action-row">
+                <button class="primary-button" id="exportData">تصدير البيانات</button>
+                <button class="secondary-button" id="importDataButton">استيراد نسخة</button>
+                <input type="file" id="importDataInput" accept=".json,application/json" hidden>
+            </div>
+            <p id="backupStatus" class="result-text"></p>
+        </div>
+    </section>
+
+</main>
+
+<footer class="footer">
+    <h3>AL-FAROUQ 1%</h3>
+    <p>أنا لا أنافس أحداً، أنا أبني نسخة أفضل من نفسي.</p>
+    <small>© 2026 — رحلة التغيير مستمرة</small>
+</footer>
+
+<div id="toast" class="toast" role="status"></div>
 
 </body>
 </html>
