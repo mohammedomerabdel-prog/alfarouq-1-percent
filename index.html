@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>الفاروق 1% | رحلة التغيير</title>
+
+    <meta name="description"
+          content="رحلة الفاروق للتطوير اليومي بنسبة 1%">
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="data.js" defer></script>
+    <script src="app.js" defer></script>
+</head>
+
+<body>
+
+    <!-- رأس الصفحة -->
+    <header class="header">
+        <div class="logo">
+            <span>1%</span>
+            <div>
+                <h1>الفاروق</h1>
+                <small>رحلة التغيير</small>
+            </div>
+        </div>
+
+        <button class="menu-button" id="menuButton">
+            ☰
+        </button>
+    </header>
+
+    <!-- القائمة الرئيسية -->
+    <nav class="navigation" id="navigation">
+        <a href="#home">الرئيسية</a>
+        <a href="#habits">العادات</a>
+        <a href="#study">الدراسة</a>
+        <a href="#faith">الجانب الإيماني</a>
+        <a href="#health">الصحة</a>
+        <a href="#reports">إنجازاتي</a>
+    </nav>
+
+    <main>
+
+        <!-- الترحيب -->
+        <section class="welcome" id="home">
+            <p class="welcome-label">رحلة الألف ميل تبدأ بخطوة</p>
+
+            <h2>أهلاً بك يا فاروق 👋</h2>
+
+            <p>
+                لا تبحث عن الكمال، فقط كن أفضل بنسبة 1% كل يوم.
+            </p>
+
+            <div class="date-display" id="currentDate"></div>
+        </section>
+
+        <!-- إحصائيات الرحلة -->
+        <section class="statistics">
+            <div class="stat-card">
+                <span>🔥</span>
+                <h3 id="streakCount">0</h3>
+                <p>أيام الاستمرار</p>
+            </div>
+
+            <div class="stat-card">
+                <span>🎯</span>
+                <h3 id="progressCount">0%</h3>
+                <p>إنجاز اليوم</p>
+            </div>
+
+            <div class="stat-card">
+                <span>📅</span>
+                <h3 id="dayCount">1</h3>
+                <p>يوم في الرحلة</p>
+            </div>
+        </section>
+
+        <!-- روتين اليوم -->
+        <section class="section" id="habits">
+            <div class="section-heading">
+                <h2>روتين اليوم</h2>
+                <p>خطوات صغيرة تصنع فارقاً كبيراً</p>
+            </div>
+
+            <div class="routine-card">
+
+                <label class="habit-item">
+                    <input type="checkbox" data-habit="prayer">
+                    <span>المحافظة على الصلوات</span>
+                </label>
+
+                <label class="habit-item">
+                    <input type="checkbox" data-habit="study">
+                    <span>إنجاز وقت المذاكرة</span>
+                </label>
+
+                <label class="habit-item">
+                    <input type="checkbox" data-habit="exercise">
+                    <span>ممارسة الرياضة</span>
+                </label>
+
+                <label class="habit-item">
+                    <input type="checkbox" data-habit="phone">
+                    <span>تقليل استخدام الهاتف</span>
+                </label>
+
+                <label class="habit-item">
+                    <input type="checkbox" data-habit="sleep">
+                    <span>الالتزام بموعد النوم</span>
+                </label>
+
+                <label class="habit-item">
+                    <input type="checkbox" data-habit="discipline">
+                    <span>الابتعاد عن الإباحية</span>
+                </label>
+
+            </div>
+        </section>
+
+        <!-- الساعة البيولوجية -->
+        <section class="section" id="sleep">
+            <div class="section-heading">
+                <h2>ساعتي البيولوجية ⏰</h2>
+                <p>نظام ثابت طوال أيام الأسبوع</p>
+            </div>
+
+            <div class="sleep-card">
+                <div>
+                    <strong>04:00 صباحاً</strong>
+                    <p>موعد الاستيقاظ</p>
+                </div>
+
+                <div>
+                    <strong>08:30 مساءً</strong>
+                    <p>الاستعداد للنوم</p>
+                </div>
+
+                <div>
+                    <strong>09:00 مساءً</strong>
+                    <p>موعد النوم</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- الجامعة والدراسة -->
+        <section class="section" id="study">
+            <div class="section-heading">
+                <h2>رحلتي الجامعية 🎓</h2>
+                <p>الثلاثاء والأربعاء والخميس أيام الجامعة</p>
+            </div>
+
+            <div class="study-card">
+                <h3>مواد الفصل الدراسي</h3>
+
+                <div id="subjectsList" class="subjects-list">
+                    <!-- المواد ستظهر من ملف data.js -->
+                </div>
+            </div>
+
+            <div class="transport-card">
+                <h3>وقت المواصلات 🚌</h3>
+                <p>حوالي ساعتين ذهاباً وساعتين عودة.</p>
+                <p>
+                    خطتي: فيديو تعليمي في الذهاب،
+                    وفيديو آخر في العودة، مع وقت للراحة والاستماع.
+                </p>
+            </div>
+        </section>
+
+        <!-- الجانب الإيماني -->
+        <section class="section" id="faith">
+            <div class="section-heading">
+                <h2>زاد يومي 🤍</h2>
+                <p>قوّي علاقتك بالله كل يوم</p>
+            </div>
+
+            <div class="faith-card">
+                <h3>وردك اليومي</h3>
+                <p>خصص وقتاً للقرآن والأذكار والدعاء.</p>
+                <p>الصلاة أولاً، ومنها تبدأ بركة يومك.</p>
+            </div>
+        </section>
+
+        <!-- الصحة -->
+        <section class="section" id="health">
+            <div class="section-heading">
+                <h2>صحتي ولياقتي 💪</h2>
+                <p>اهتم بجسمك كما تهتم بعقلك</p>
+            </div>
+
+            <div class="health-card">
+                <p>💧 متابعة شرب الماء</p>
+                <p>🏃 التمارين والحركة</p>
+                <p>🥗 التغذية المتوازنة</p>
+                <p>😴 النوم الكافي</p>
+            </div>
+        </section>
+
+        <!-- مراجعة اليوم -->
+        <section class="section" id="reports">
+            <div class="section-heading">
+                <h2>مراجعة اليوم ✍️</h2>
+                <p>راجع يومك وتعلم من تجربتك</p>
+            </div>
+
+            <div class="review-card">
+                <label for="dailyReview">
+                    ما أفضل شيء أنجزته اليوم؟
+                </label>
+
+                <textarea
+                    id="dailyReview"
+                    placeholder="اكتب إنجازك اليوم..."
+                    rows="4">
+                </textarea>
+
+                <button id="saveReview">
+                    حفظ مراجعة اليوم
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- تذييل الصفحة -->
+    <footer class="footer">
+        <h3>AL-FAROUQ 1%</h3>
+        <p>أنا لا أنافس أحداً، أنا أبني نسخة أفضل من نفسي.</p>
+        <small>© 2026 — رحلة التغيير مستمرة</small>
+    </footer>
+
+</body>
+</html>
