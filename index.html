@@ -13,13 +13,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
-
-  <!-- تحميل بيانات الفيديوهات قبل تشغيل التطبيق -->
   <script src="data.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 
 <body>
+
+  <!-- رأس الموقع -->
   <header class="header">
     <a class="brand" href="#home" aria-label="العودة للرئيسية">
       <span class="brand-mark">1%</span>
@@ -29,8 +29,9 @@
       </span>
     </a>
 
-    <button class="menu-button" id="menuButton" type="button"
-      aria-expanded="false" aria-controls="navigation">☰</button>
+    <button class="menu-button" id="menuButton"
+      type="button" aria-expanded="false"
+      aria-controls="navigation">☰</button>
 
     <nav class="navigation" id="navigation">
       <a href="#home">الرئيسية</a>
@@ -41,12 +42,17 @@
       <a href="#commute">المواصلات</a>
       <a href="#reports">التقارير</a>
       <a href="#journey-log">سجل رحلتي</a>
+
+      <button type="button" class="library-nav-button"
+        id="openLibraryButton">
+        📚 مكتبتي
+      </button>
     </nav>
   </header>
 
   <main class="container">
 
-    <!-- الرئيسية -->
+    <!-- الصفحة الرئيسية -->
     <section class="hero panel" id="home">
       <div class="hero-copy">
         <span class="eyebrow">خطوة صغيرة كل يوم</span>
@@ -154,8 +160,8 @@
           <input type="checkbox" data-habit="discipline">
           <span class="habit-check"></span>
           <span class="habit-text">
-            <b>الابتعاد عن الإباحية</b>
-            <small>أتعامل مع الرغبة بوعي وأطلب الدعم عند الحاجة</small>
+            <b>الانضباط الشخصي</b>
+            <small>أحافظ على قراراتي وأهدافي</small>
           </span>
         </label>
       </div>
@@ -205,7 +211,9 @@
               <input type="time" id="sleepEnd" required value="04:00">
             </label>
 
-            <button class="primary-button" type="submit">حفظ سجل النوم</button>
+            <button class="primary-button" type="submit">
+              حفظ سجل النوم
+            </button>
           </form>
 
           <p id="sleepResult" class="feedback" aria-live="polite">
@@ -244,7 +252,8 @@
             <input id="taskDue" type="date">
           </label>
 
-          <button class="primary-button align-end" id="addTaskButton" type="button">
+          <button class="primary-button align-end"
+            id="addTaskButton" type="button">
             + إضافة مهمة
           </button>
         </div>
@@ -255,7 +264,9 @@
         </div>
 
         <div id="taskList" class="task-list">
-          <p class="empty-state">ما عندك مهام دراسية حالياً. أضف أول مهمة.</p>
+          <p class="empty-state">
+            ما عندك مهام دراسية حالياً. أضف أول مهمة.
+          </p>
         </div>
       </div>
 
@@ -265,13 +276,14 @@
           <b>أيام الجامعة</b>
           <p>
             الثلاثاء والأربعاء والخميس — الاستيقاظ 5 صباحاً حالياً،
-            والعودة غالباً قرب المغرب. هدفنا تثبيت الاستيقاظ 4 صباحاً والنوم مبكراً.
+            والعودة غالباً قرب المغرب. هدفنا تثبيت الاستيقاظ 4 صباحاً
+            والنوم مبكراً.
           </p>
         </div>
       </div>
     </section>
 
-    <!-- الإيمان -->
+    <!-- الجانب الإيماني -->
     <section class="section" id="faith">
       <div class="section-heading">
         <div>
@@ -359,147 +371,41 @@
       </div>
     </section>
 
-    <!-- أكاديمية المواصلات -->
+    <!-- المواصلات -->
     <section class="section" id="commute">
       <div class="section-heading">
         <div>
-          <span class="eyebrow">أكاديمية المواصلات</span>
-          <h2>استثمر وقت الطريق 🎧</h2>
-          <p>
-            25 يوماً من التعلم، فيديو للذهاب وفيديو للعودة.
-            استمع براحتك وبالسماعات.
-          </p>
+          <span class="eyebrow">استثمار مرن للوقت</span>
+          <h2>خطة المواصلات</h2>
+          <p>حوالي ساعتين ذهاباً وساعتين عودة في أيام الجامعة.</p>
         </div>
         <span class="section-number">06</span>
       </div>
 
-      <!-- فيديو الذهاب -->
-      <div class="commute-video-section">
-        <div class="commute-section-title">
+      <div class="two-column">
+        <article class="panel commute-card">
           <span class="card-icon">🚌</span>
-          <div>
-            <h3>فيديو الذهاب</h3>
-            <p class="muted small">ابدأ يومك بفكرة جديدة.</p>
-          </div>
-        </div>
+          <h3>الذهاب</h3>
+          <p>فيديو تعليمي واحد أو استماع لمحاضرة بسماعات.</p>
+          <label class="check-line">
+            <input type="checkbox" data-commute="outbound">
+            أنجزت خطة الذهاب
+          </label>
+        </article>
 
-        <div id="outboundVideoCard" class="commute-video-card">
-          <div class="video-thumbnail-wrap">
-            <img
-              id="outboundVideoImage"
-              class="video-thumbnail"
-              src=""
-              alt="صورة فيديو الذهاب"
-              loading="lazy"
-            >
-            <span class="video-play-icon">▶</span>
-          </div>
-
-          <div class="video-card-info">
-            <span class="video-category" id="outboundVideoCategory">فيديو اليوم</span>
-            <h4 id="outboundVideoTitle">سيظهر فيديو الذهاب هنا</h4>
-            <p id="outboundVideoDescription">فيديو تعليمي أو تطويري تستمع إليه في الطريق.</p>
-            <a
-              id="outboundVideoLink"
-              class="primary-button video-watch-button"
-              href="#"
-              target="_blank"
-              rel="noopener noreferrer"
-            >شاهد الفيديو</a>
-          </div>
-        </div>
-
-        <label class="check-line commute-complete">
-          <input type="checkbox" data-commute="outbound">
-          أنجزت خطة الذهاب
-        </label>
-      </div>
-
-      <!-- فيديو العودة -->
-      <div class="commute-video-section">
-        <div class="commute-section-title">
+        <article class="panel commute-card">
           <span class="card-icon">🎧</span>
-          <div>
-            <h3>فيديو العودة</h3>
-            <p class="muted small">اختم يومك بمعرفة أو مراجعة مفيدة.</p>
-          </div>
-        </div>
-
-        <div id="returnVideoCard" class="commute-video-card">
-          <div class="video-thumbnail-wrap">
-            <img
-              id="returnVideoImage"
-              class="video-thumbnail"
-              src=""
-              alt="صورة فيديو العودة"
-              loading="lazy"
-            >
-            <span class="video-play-icon">▶</span>
-          </div>
-
-          <div class="video-card-info">
-            <span class="video-category" id="returnVideoCategory">فيديو اليوم</span>
-            <h4 id="returnVideoTitle">سيظهر فيديو العودة هنا</h4>
-            <p id="returnVideoDescription">محتوى يساعدك على التعلم والتطوير.</p>
-            <a
-              id="returnVideoLink"
-              class="primary-button video-watch-button"
-              href="#"
-              target="_blank"
-              rel="noopener noreferrer"
-            >شاهد الفيديو</a>
-          </div>
-        </div>
-
-        <label class="check-line commute-complete">
-          <input type="checkbox" data-commute="return">
-          أنجزت خطة العودة
-        </label>
-      </div>
-
-      <!-- مكتبة الفيديوهات -->
-      <div class="panel video-library-panel">
-        <div class="video-library-heading">
-          <div>
-            <span class="eyebrow">تعلم مستمر</span>
-            <h3>مكتبة الفيديوهات</h3>
-            <p class="muted small">اختَر المجال الذي تريد التعلم فيه.</p>
-          </div>
-          <span class="library-icon">🎬</span>
-        </div>
-
-        <div class="video-filter-bar">
-          <button type="button" class="video-filter active" data-video-filter="all">
-            الكل
-          </button>
-          <button type="button" class="video-filter" data-video-filter="faith">
-            الدين
-          </button>
-          <button type="button" class="video-filter" data-video-filter="self">
-            تطوير الذات
-          </button>
-          <button type="button" class="video-filter" data-video-filter="psychology">
-            النفس والسلوك
-          </button>
-          <button type="button" class="video-filter" data-video-filter="study">
-            الدراسة
-          </button>
-          <button type="button" class="video-filter" data-video-filter="health">
-            الصحة
-          </button>
-          <button type="button" class="video-filter" data-video-filter="skills">
-            المهارات
-          </button>
-        </div>
-
-        <div id="videoLibrary" class="video-library-grid">
-          <p class="empty-state">جاري تجهيز مكتبة الفيديوهات...</p>
-        </div>
+          <h3>العودة</h3>
+          <p>فيديو ثانٍ أو مراجعة صوتية، والراحة متاحة لو كنت مرهقاً.</p>
+          <label class="check-line">
+            <input type="checkbox" data-commute="return">
+            أنجزت خطة العودة
+          </label>
+        </article>
       </div>
 
       <p class="muted small commute-reminder">
         ما مطلوب تستغل الأربع ساعات كلها؛ سلامتك وراحتك أهم من أي جدول.
-        لو كنت مرهقاً، خذ وقتك في الراحة.
       </p>
     </section>
 
@@ -549,10 +455,13 @@
             <button class="secondary-button" id="exportData" type="button">
               تصدير نسخة احتياطية
             </button>
+
             <button class="secondary-button" id="importButton" type="button">
               استيراد نسخة
             </button>
-            <input id="importFile" type="file" accept="application/json" hidden>
+
+            <input id="importFile" type="file"
+              accept="application/json" hidden>
           </div>
         </article>
       </div>
@@ -579,6 +488,7 @@
               <option value="30">آخر 30 يوماً</option>
             </select>
           </label>
+
           <span id="logDaysCount" class="log-count">0 يوم مسجل</span>
         </div>
 
@@ -596,6 +506,7 @@
                 <th>التفاصيل</th>
               </tr>
             </thead>
+
             <tbody id="journeyLogBody">
               <tr>
                 <td colspan="8" class="empty-state">
@@ -609,10 +520,10 @@
         <div id="dayDetails" class="day-details" hidden>
           <div class="day-details-head">
             <h3 id="detailDate">تفاصيل اليوم</h3>
-            <button id="closeDayDetails" class="secondary-button" type="button">
-              إغلاق
-            </button>
+            <button id="closeDayDetails"
+              class="secondary-button" type="button">إغلاق</button>
           </div>
+
           <div id="dayDetailsContent" class="day-details-grid"></div>
         </div>
 
@@ -623,6 +534,7 @@
       </div>
     </section>
 
+    <!-- التذييل -->
     <footer class="footer">
       <strong>AL-FAROUQ 1%</strong>
       <p>الثبات أهم من الكمال. لو تعثرت، ابدأ من جديد.</p>
@@ -631,6 +543,89 @@
 
   </main>
 
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <!-- نافذة مكتبة الفيديوهات المنبثقة -->
+  <div class="library-modal" id="libraryModal"
+    aria-hidden="true">
+
+    <div class="library-backdrop" id="libraryBackdrop"></div>
+
+    <section class="library-window"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="libraryTitle">
+
+      <div class="library-header">
+        <div>
+          <span class="eyebrow">تعلم كل يوم</span>
+          <h2 id="libraryTitle">📚 مكتبتي التعليمية</h2>
+          <p>معرفة جديدة كل يوم تصنع فرقاً كبيراً.</p>
+        </div>
+
+        <button type="button" class="library-close"
+          id="closeLibraryButton" aria-label="إغلاق المكتبة">
+          ✕
+        </button>
+      </div>
+
+      <!-- فلاتر المكتبة -->
+      <div class="library-filters" id="libraryFilters">
+        <button type="button" class="library-filter active"
+          data-category="all">الكل</button>
+
+        <button type="button" class="library-filter"
+          data-category="religion">الدين</button>
+
+        <button type="button" class="library-filter"
+          data-category="self-development">تطوير الذات</button>
+
+        <button type="button" class="library-filter"
+          data-category="psychology">النفس والسلوك</button>
+
+        <button type="button" class="library-filter"
+          data-category="study">الدراسة</button>
+
+        <button type="button" class="library-filter"
+          data-category="health">الصحة</button>
+
+        <button type="button" class="library-filter"
+          data-category="skills">المهارات</button>
+      </div>
+
+      <!-- البحث -->
+      <div class="library-search">
+        <span>🔎</span>
+        <input type="search" id="librarySearch"
+          placeholder="ابحث عن فيديو أو موضوع..."
+          aria-label="البحث في المكتبة">
+      </div>
+
+      <!-- إحصائيات المكتبة -->
+      <div class="library-summary">
+        <span>مكتبتي التعليمية</span>
+        <span id="libraryVideoCount">جاري تجهيز الفيديوهات...</span>
+      </div>
+
+      <!-- بطاقات الفيديوهات -->
+      <div class="library-grid" id="libraryGrid">
+
+        <div class="library-loading" id="libraryLoading">
+          <span>📚</span>
+          <p>جاري تحميل مكتبتك التعليمية...</p>
+        </div>
+
+      </div>
+
+      <div class="library-footer">
+        <span>AL-FAROUQ 1%</span>
+        <span>التعلم استثمار في نفسك ✦</span>
+      </div>
+
+    </section>
+  </div>
+
+  <!-- إشعارات الموقع -->
+  <div id="toast" class="toast"
+    role="status" aria-live="polite"></div>
+
 </body>
 </html>
